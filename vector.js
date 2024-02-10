@@ -245,7 +245,7 @@
   
 Vec3.prototype.project = function(cameraPosition, scalingFactor, viewportWidth, viewportHeight) {
   // Calculate the vector from the camera position to this point
-  const cameraToPoint = new Vector.Vec3(
+  const cameraToPoint = new Vec3(
     this.x - cameraPosition.x,
     this.y - cameraPosition.y,
     this.z - cameraPosition.z
@@ -257,7 +257,7 @@ Vec3.prototype.project = function(cameraPosition, scalingFactor, viewportWidth, 
   const projectedX = (cameraToPoint.x / cameraToPoint.z) * scalingFactor + (viewportWidth / 2);
   const projectedY = (cameraToPoint.y / cameraToPoint.z) * scalingFactor + (viewportHeight / 2);
   // Return a Vec2 with the projected coordinates
-  return new Vector.Vec2(projectedX, projectedY);
+  return new Vec2(projectedX, projectedY);
   
 };
   Vector["Vec3"] = Vec3;
