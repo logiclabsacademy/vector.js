@@ -4,155 +4,195 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Birds Flocking</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #000;
+        }
+        canvas {
+            background-color: #fff;
+        }
+    </style>
 </head>
 <body>
-    <canvas id="birds_flocking" ></canvas>
-    <script src="../src/vector.js" ></script>
-    <script > 
-    function Boid(position, velocity) {
-  return {
-    position: position,
-    velocity: velocity,
-    acceleration: new Vector.Vec2(0, 0),
-    maxSpeed: 4,
-    maxForce: 0.1,
-    applyForce: function(force) {
-      this.acceleration = this.acceleration.add(force);
-    },
-    update: function() {
-      this.velocity = this.velocity.add(this.acceleration);
-      if (this.velocity.magnitude() > this.maxSpeed) {
+    <canvas id="birds_flocking" width="800" height="600"></canvas>
+    <script src="../src/vector.js"></script>
+    <script>
+        function Boid(position, velocity) {
+            return {
+                position: position,
+                velocity: velocity,
+                acceleration: new Vector.Vec2(0, 0),
+                maxSpeed: 2, // Adjust speed
+                maxForce: 0.05, // Adjust force
+                applyForce: function (force) {
+                    this.acceleration = this.acceleration.add(force);
+                },
+                update: function () {
+    this.velocity = this.velocity.add(this.acceleration);
+    if (this.velocity.magnitude() > this.maxSpeed) {
         this.velocity = this.velocity.unit().scale(this.maxSpeed);
-      }
-      this.position = this.position.add(this.velocity);
-      this.acceleration = Vector.Vec2(0, 0);
     }
-  };
-}
+    this.position = this.position.add(this.velocity);
+    this.acceleration = Vector.Vec2(0, 0);
 
-function Flock() {
-  return {
-    boids: [],
-    addBoid: function(boid) {
-      this.boids.push(boid);
-    },
-    run: function() {
-      this.boids.forEach(boid => {
-        this.flock(boid);
-        boid.update();
-      });
-    },
-    flock: function(boid) {
-      const separation = this.separate(boid);
-      const alignment = this.align(boid);
-      const cohesion = this.cohere(boid);
-
-      boid.applyForce(separation.scale(1.5));
-      boid.applyForce(alignment.scale(1.0));
-      boid.applyForce(cohesion.scale(1.0));
-    },
-    separate: function(boid) {
-      const desiredSeparation = 25.0;
-      let steer = Vector.Vec2(0, 0);
-      let count = 0;
-      this.boids.forEach(other => {
-        const distance = boid.position.sub(other.position).magnitude();
-        if (distance > 0 && distance < desiredSeparation) {
-          const diff = boid.position.sub(other.position).unit().scale(1 / distance);
-          steer = steer.add(diff);
-          count++;
-        }
-      });
-      if (count > 0) {
-        steer = steer.scale(1 / count);
-      }
-      if (steer.magnitude() > 0) {
-        steer = steer.unit().scale(boid.maxSpeed).sub(boid.velocity);
-        if (steer.magnitude() > boid.maxForce) {
-          steer = steer.unit().scale(boid.maxForce);
-        }
-      }
-      return steer;
-    },
-    align: function(boid) {
-      const neighborDist = 50;
-      let sum = Vector.Vec2(0, 0);
-      let count = 0;
-      this.boids.forEach(other => {
-        const distance = boid.position.sub(other.position).magnitude();
-        if (distance > 0 && distance < neighborDist) {
-          sum = sum.add(other.velocity);
-          count++;
-        }
-      });
-      if (count > 0) {
-        sum = sum.scale(1 / count).unit().scale(boid.maxSpeed);
-        const steer = sum.sub(boid.velocity);
-        if (steer.magnitude() > boid.maxForce) {
-          return steer.unit().scale(boid.maxForce);
-        }
-        return steer;
-      }
-      return Vector.Vec2(0, 0);
-    },
-    cohere: function(boid) {
-      const neighborDist = 50;
-      let sum = Vector.Vec2(0, 0);
-      let count = 0;
-      this.boids.forEach(other => {
-        const distance = boid.position.sub(other.position).magnitude();
-        if (distance > 0 && distance < neighborDist) {
-          sum = sum.add(other.position);
-          count++;
-        }
-      });
-      if (count > 0) {
-        sum = sum.scale(1 / count);
-        return this.seek(boid, sum);
-      }
-      return Vector.Vec2(0, 0);
-    },
-    seek: function(boid, target) {
-      const desired = target.sub(boid.position).unit().scale(boid.maxSpeed);
-      const steer = desired.sub(boid.velocity);
-      if (steer.magnitude() > boid.maxForce) {
-        return steer.unit().scale(boid.maxForce);
-      }
-      return steer;
+    // Wrap around if the boid goes off-screen
+    if (this.position.x < 0) {
+        this.position.x = canvas.width;
+    } else if (this.position.x > canvas.width) {
+        this.position.x = 0;
     }
-  };
+    if (this.position.y < 0) {
+        this.position.y = canvas.height;
+    } else if (this.position.y > canvas.height) {
+        this.position.y = 0;
+    }
 }
 
-// Simulation parameters
-const flock = Flock();
-for (let i = 0; i < 100; i++) {
-  const position = Vector.Vec2(Math.random() * 500, Math.random() * 500);
-  const velocity = Vector.Vec2(Math.random() * 2 - 1, Math.random() * 2 - 1);
-  flock.addBoid(Boid(position, velocity));
-}
+            };
+        }
 
-// Simulation loop
-function simulate() {
-  flock.run();
-  drawBoids(flock.boids);
-  requestAnimationFrame(simulate);
-}
+        function Flock() {
+            return {
+                boids: [],
+                addBoid: function (boid) {
+                    this.boids.push(boid);
+                },
+                run: function () {
+                    this.boids.forEach(boid => {
+                        this.flock(boid);
+                        boid.update();
+                    });
+                },
+                flock: function (boid) {
+                    const separation = this.separate(boid);
+                    const alignment = this.align(boid);
+                    const cohesion = this.cohere(boid);
 
-// Drawing function (using a simple canvas for visualization)
-function drawBoids(boids) {
-  const canvas = document.getElementById('birds_flocking');
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  boids.forEach(boid => {
-    ctx.beginPath();
-    ctx.arc(boid.position.x, boid.position.y, 2, 0, Math.PI * 2);
-    ctx.fill();
-  });
-}
+                    boid.applyForce(separation.scale(1.5));
+                    boid.applyForce(alignment.scale(1.0));
+                    boid.applyForce(cohesion.scale(1.0));
+                },
+                separate: function (boid) {
+                    const desiredSeparation = 25.0;
+                    let steer = new Vector.Vec2(0, 0);
+                    let count = 0;
+                    this.boids.forEach(other => {
+                        const distance = boid.position.sub(other.position).magnitude();
+                        if (distance > 0 && distance < desiredSeparation) {
+                            const diff = boid.position.sub(other.position).unit().scale(1 / distance);
+                            steer = steer.add(diff);
+                            count++;
+                        }
+                    });
+                    if (count > 0) {
+                        steer = steer.scale(1 / count);
+                    }
+                    if (steer.magnitude() > 0) {
+                        steer = steer.unit().scale(boid.maxSpeed).sub(boid.velocity);
+                        if (steer.magnitude() > boid.maxForce) {
+                            steer = steer.unit().scale(boid.maxForce);
+                        }
+                    }
+                    return steer;
+                },
+                align: function (boid) {
+                    const neighborDist = 50;
+                    let sum = new Vector.Vec2(0, 0);
+                    let count = 0;
+                    this.boids.forEach(other => {
+                        const distance = boid.position.sub(other.position).magnitude();
+                        if (distance > 0 && distance < neighborDist) {
+                            sum = sum.add(other.velocity);
+                            count++;
+                        }
+                    });
+                    if (count > 0) {
+                        sum = sum.scale(1 / count).unit().scale(boid.maxSpeed);
+                        const steer = sum.sub(boid.velocity);
+                        if (steer.magnitude() > boid.maxForce) {
+                            return steer.unit().scale(boid.maxForce);
+                        }
+                        return steer;
+                    }
+                    return new Vector.Vec2(0, 0);
+                },
+                cohere: function (boid) {
+                    const neighborDist = 50;
+                    let sum = new Vector.Vec2(0, 0);
+                    let count = 0;
+                    this.boids.forEach(other => {
+                        const distance = boid.position.sub(other.position).magnitude();
+                        if (distance > 0 && distance < neighborDist) {
+                            sum = sum.add(other.position);
+                            count++;
+                        }
+                    });
+                    if (count > 0) {
+                        sum = sum.scale(1 / count);
+                        return this.seek(boid, sum);
+                    }
+                    return new Vector.Vec2(0, 0);
+                },
+                seek: function (boid, target) {
+                    const desired = target.sub(boid.position).unit().scale(boid.maxSpeed);
+                    const steer = desired.sub(boid.velocity);
+                    if (steer.magnitude() > boid.maxForce) {
+                        return steer.unit().scale(boid.maxForce);
+                    }
+                    return steer;
+                }
+            };
+        }
 
-// Start the simulation
-window.addEventListener('load', simulate);
+        // Simulation parameters
+        const flock = Flock();
+        for (let i = 0; i < 100; i++) {
+            const position = new Vector.Vec2(Math.random() * 800, Math.random() * 600);
+            const velocity = new Vector.Vec2(Math.random() * 2 - 1, Math.random() * 2 - 1);
+            flock.addBoid(Boid(position, velocity));
+        }
 
+        // Simulation loop
+        function simulate() {
+            flock.run();
+            drawBoids(flock.boids);
+            requestAnimationFrame(simulate);
+        }
+
+        // Drawing function (using a simple canvas for visualization)
+        function drawBoids(boids) {
+            const canvas = document.getElementById('birds_flocking');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            boids.forEach(boid => {
+                drawTriangle(ctx, boid.position, boid.velocity);
+            });
+        }
+
+        // Function to draw a triangle representing a boid
+        function drawTriangle(ctx, position, velocity) {
+            const angle = Math.atan2(velocity.y, velocity.x);
+            ctx.save();
+            ctx.translate(position.x, position.y);
+            ctx.rotate(angle);
+            ctx.beginPath();
+            ctx.moveTo(0, -5);
+            ctx.lineTo(10, 0);
+            ctx.lineTo(0, 5);
+            ctx.closePath();
+            ctx.fillStyle = '#00f';
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // Start the simulation
+        window.addEventListener('load', simulate);
     </script>
 </body>
 </html>
