@@ -6,173 +6,139 @@
     <title>3D Solar System Simulation</title>
     <style>
          body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #000;
-    }
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #000;
+        }
 
-    canvas {
-      background-color: #fff;
-    }
+        canvas {
+            background-color: #fff;
+        }
     </style>
 </head>
 <body>
     <canvas id="solar_system"></canvas>
     <script type="module">
-       import '../src/vector.js'; // Correct usage.
 
-       const canvas = document.getElementById('solar_system');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+        import '../src/vector.js'; // Assuming this is the correct path to the vector module.
 
-class Sphere {
-    constructor(position, mass, velocity = new Vector.Vec3(0, 0, 0), radius, color) {
-        // clip postion to canvas
-        if (position.x < 0) {
-            position.x = 0;
-        } else if (position.x > canvas.width) {
-            position.x = canvas.width;
+        const canvas = document.getElementById('solar_system');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Function to calculate squared distance between two vectors
+        function distanceSquared(vector1, vector2) {
+            const dx = vector2.x - vector1.x;
+            const dy = vector2.y - vector1.y;
+            const dz = vector2.z - vector1.z;
+            return dx * dx + dy * dy + dz * dz;
         }
 
-        if (position.y < 0) {
-            position.y = 0;
-        } else if (position.y > canvas.height) {
-            position.y = canvas.height;
-        }
+        class Sphere {
+            constructor(position, mass, velocity, radius, color) {
+                // Validate and set default values for position
+                this.position = position || new Vector.Vec3(0, 0, 0);
 
-        this.position = position;
-        this.mass = mass;
-        this.velocity = velocity;
-        this.radius = radius;
-        this.color = color;
-    }
-    
-    applyForce(force) {
-        const acceleration = force.scale(1 / this.mass);
-        this.velocity.add(acceleration);
+                // Validate and set default values for mass
+                this.mass = (typeof mass === 'number' && !isNaN(mass) && mass > 0) ? mass : 1;
 
-    }
+                // Validate and set default values for velocity
+                this.velocity = velocity || new Vector.Vec3(0, 0, 0);
 
-    updatePosition(timeStep) {
-        this.position.add(this.velocity.scale(timeStep));
-    }
+                // Validate and set default values for radius
+                this.radius = (typeof radius === 'number' && !isNaN(radius) && radius > 0) ? radius : 1;
 
-    draw(ctx) {
-        const numSegments = 50;
-        for (let i = 0; i < numSegments; i++) {
-            const theta1 = (i / numSegments) * Math.PI;
-            const theta2 = ((i + 1) / numSegments) * Math.PI;
+                // Validate and set default values for color
+                if (Array.isArray(color) && color.length === 4 && color.every(c => typeof c === 'number' && !isNaN(c))) {
+                    this.color = color;
+                } else {
+                    this.color = [0, 0, 0, 1]; // Default color: black
+                }
+            }
 
-            for (let j = 0; j < numSegments; j++) {
-                const phi1 = (j / numSegments) * 2 * Math.PI;
-                const phi2 = ((j + 1) / numSegments) * 2 * Math.PI;
+            applyForce(force) {
+                const acceleration = force.scale(1 / this.mass);
+                this.velocity.add(acceleration);
+            }
 
-                const x1 = this.radius * Math.sin(theta1) * Math.cos(phi1) + this.position.x;
-                const y1 = this.radius * Math.sin(theta1) * Math.sin(phi1) + this.position.y;
-                const z1 = this.radius * Math.cos(theta1) + this.position.z;
+            updatePosition(timeStep) {
+                this.position.add(this.velocity.scale(timeStep));
+            }
 
-                const x2 = this.radius * Math.sin(theta2) * Math.cos(phi1) + this.position.x;
-                const y2 = this.radius * Math.sin(theta2) * Math.sin(phi1) + this.position.y;
-                const z2 = this.radius * Math.cos(theta2) + this.position.z;
+            draw(ctx) {
+                const numSegments = 50;
+                for (let i = 0; i < numSegments; i++) {
+                    const theta1 = (i / numSegments) * Math.PI;
+                    const theta2 = ((i + 1) / numSegments) * Math.PI;
 
-                const x3 = this.radius * Math.sin(theta2) * Math.cos(phi2) + this.position.x;
-                const y3 = this.radius * Math.sin(theta2) * Math.sin(phi2) + this.position.y;
-                const z3 = this.radius * Math.cos(theta2) + this.position.z;
+                    for (let j = 0; j < numSegments; j++) {
+                        const phi1 = (j / numSegments) * 2 * Math.PI;
+                        const phi2 = ((j + 1) / numSegments) * 2 * Math.PI;
 
-                const x4 = this.radius * Math.sin(theta1) * Math.cos(phi2) + this.position.x;
-                const y4 = this.radius * Math.sin(theta1) * Math.sin(phi2) + this.position.y;
-                const z4 = this.radius * Math.cos(theta1) + this.position.z;
+                        const x1 = this.radius * Math.sin(theta1) * Math.cos(phi1) + this.position.x;
+                        const y1 = this.radius * Math.sin(theta1) * Math.sin(phi1) + this.position.y;
+                        const z1 = this.radius * Math.cos(theta1) + this.position.z;
 
-                ctx.beginPath();
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
-                ctx.lineTo(x3, y3);
-                ctx.lineTo(x4, y4);
-                ctx.closePath();
-                ctx.strokeStyle = `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, ${this.color[3]})`;
-                ctx.stroke();
+                        const x2 = this.radius * Math.sin(theta2) * Math.cos(phi1) + this.position.x;
+                        const y2 = this.radius * Math.sin(theta2) * Math.sin(phi1) + this.position.y;
+                        const z2 = this.radius * Math.cos(theta2) + this.position.z;
+
+                        const x3 = this.radius * Math.sin(theta2) * Math.cos(phi2) + this.position.x;
+                        const y3 = this.radius * Math.sin(theta2) * Math.sin(phi2) + this.position.y;
+                        const z3 = this.radius * Math.cos(theta2) + this.position.z;
+
+                        const x4 = this.radius * Math.sin(theta1) * Math.cos(phi2) + this.position.x;
+                        const y4 = this.radius * Math.sin(theta1) * Math.sin(phi2) + this.position.y;
+                        const z4 = this.radius * Math.cos(theta1) + this.position.z;
+
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.lineTo(x3, y3);
+                        ctx.lineTo(x4, y4);
+                        ctx.lineTo(x1, y1);
+                        ctx.strokeStyle = `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, ${this.color[3]})`;
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
+                }
             }
         }
-    }
 
+        // Define celestial bodies
+        const sun = new Sphere(new Vector.Vec3(canvas.width / 2, canvas.height / 2, 150), 1.989e30, new Vector.Vec3(0, 0, 0), 100, [255, 255, 0, 1]);
+        const mercury = new Sphere(new Vector.Vec3(canvas.width / 2 + 57909175, canvas.height / 2, 0), 3.3011e23, new Vector.Vec3(0, 47872, 0), 5, [139, 69, 19, 1]);
+        const venus = new Sphere(new Vector.Vec3(canvas.width / 2 + 108208930, canvas.height / 2, 0), 4.8675e24, new Vector.Vec3(0, 35020, 0), 6, [255, 165, 0, 1]);
+        const earth = new Sphere(new Vector.Vec3(canvas.width / 2 + 149597890, canvas.height / 2, 0), 5.972e24, new Vector.Vec3(0, 29783, 0), 7, [0, 0, 255, 1]);
 
-}
+        // Array containing all celestial bodies
+        const celestialBodies = [sun, mercury, venus, earth];
 
+        // Main simulation loop
+        function simulate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-const G = 1e24; // Gravitational constant
-const timeStep = 3600; // Time step in seconds (1 hour)
+            // Update positions and draw celestial bodies
+            celestialBodies.forEach(body => {
+                body.updatePosition(3600); // Time step: 1 hour
+                body.draw(ctx);
+            });
 
-const sun = new Sphere(new Vector.Vec3(400, 300, 0), 1.989e30, new Vector.Vec3(0, 0, 0), 30, [255, 204, 0, 1.0]);
-const earth = new Sphere(new Vector.Vec3(150 + 400, 300, 0), 5.972e24, new Vector.Vec3(0, 29780, 0), 10, [69, 133, 182, 1.0]);
-const moon = new Sphere(new Vector.Vec3(150 + 384400 / 1000 + 400, 300, 0), 7.348e22, new Vector.Vec3(0, 30780, 0), 3, [169, 169, 169, 1.0]);
-
-const celestialBodies = [sun, earth, moon];
-
-console.log(celestialBodies);
-function calculateGravitationalForce(body1, body2) {
-    const distanceVector = body2.position.sub(body1.position);
-    const distance = distanceVector.distanceTo(new Vector.Vec3(0, 0, 0));
-    const forceMagnitude = (G * body1.mass * body2.mass) / (distance * distance);
-    const force = distanceVector.unit().scale(forceMagnitude);
-    return force;
-}
-
-function simulate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for (let i = 0; i < celestialBodies.length; i++) {
-        for (let j = 0; j < celestialBodies.length; j++) {
-            if (i !== j) {
-                const force = calculateGravitationalForce(celestialBodies[i], celestialBodies[j]);
-                celestialBodies[i].applyForce(force);
-            }
-        }
-    }
-
-    celestialBodies.forEach(body => {
-        body.updatePosition(timeStep);
-        body.draw(ctx);
-        
-        // Prevent celestial bodies from leaving the canvas
-        if (body.position.x - body.radius < 0 || body.position.x + body.radius > canvas.width) {
-            body.velocity.x *= -1;
+            requestAnimationFrame(simulate); // Continue the simulation
         }
 
-        if (body.position.y - body.radius < 0 || body.position.y + body.radius > canvas.height) {
-            body.velocity.y *= -1;
-        }
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
 
-        if (body.position.z - body.radius < 0 || body.position.z + body.radius > canvas.height) {
-            body.velocity.z *= -1;
-        }
-
-        // project 3D to 2D using Vec3.project()
-        const projected = body.position.project(400, 300, 200, 200, 200);
-        ctx.beginPath();
-        ctx.arc(projected.x, projected.y, body.radius, 0, 2 * Math.PI);
-        ctx.fillStyle = `rgba(${body.color[0]}, ${body.color[1]}, ${body.color[2]}, ${body.color[3]})`;
-        ctx.fill();
-        
-
-
-    });
-
-    requestAnimationFrame(simulate);
-}
-
-window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-});
-
-window.addEventListener('load', () => {
-    simulate();
-});
-
+        window.addEventListener('load', () => {
+            simulate();
+        });
 
     </script>
 </body>
