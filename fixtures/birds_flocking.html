@@ -225,13 +225,13 @@
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       boids.forEach(boid => {
-        drawTriangle(ctx, boid.position, boid.velocity);
+        drawBird(ctx, boid.position, boid.velocity);
       });
 
     }
 
     
-    function drawTriangle(ctx, position, velocity) {
+    function drawBird(ctx, position, velocity) {
       const angle = Math.atan2(velocity.y, velocity.x);
       const size = 10; // Adjust the size of the triangle here
       

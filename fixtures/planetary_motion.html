@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planetary Motion Simulation</title>
+    <style>
+     body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #000;
+        }
+
+        canvas {
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="planetary_motion"></canvas>
+    <script src="../src/vector.js"></script>
+    <script>
+        const canvas = document.getElementById('planetary_motion');
+        const ctx = canvas.getContext('2d');
+        const WIDTH = canvas.width = window.innerWidth;
+        const HEIGHT = canvas.height = window.innerHeight;
+
+        // Define celestial bodies
+        const sun = new Vector.Vec2(WIDTH / 2, HEIGHT / 2);
+        const earth = new Vector.Vec2(WIDTH / 2 + 200, HEIGHT / 2);
+        const earthVelocity = new Vector.Vec2(0, 2); // Adjust velocity as needed
+        const earthMass = 1e24; // Adjust mass as needed
+
+        // Simulation parameters
+        const G = 6.674e-11; // Gravitational constant
+        const timeStep = 1; // Time step in seconds
+
+        // Main simulation loop
+        function simulate() {
+            // Clear canvas
+            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+            
+            // Calculate gravitational force
+            const distance = earth.distanceTo(sun);
+            const forceMagnitude = (G * sun.mass * earthMass) / Math.pow(distance, 2);
+            const forceDirection = sun.sub(earth).unit();
+            const gravitationalForce = forceDirection.scale(forceMagnitude);
+
+            // Update earth's velocity and position
+            const acceleration = gravitationalForce.scale(1 / earthMass);
+            earthVelocity.add(acceleration.scale(timeStep));
+            earth.add(earthVelocity.scale(timeStep));
+
+            // Draw celestial bodies
+            drawCircle(sun, 20, '#FFD700'); // Sun
+            drawCircle(earth, 10, '#4682B4'); // Earth
+
+            // Request next frame
+            requestAnimationFrame(simulate);
+        }
+
+        // Function to draw a circle
+        function drawCircle(position, radius, color) {
+            ctx.beginPath();
+            ctx.arc(position.x, position.y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Start the simulation
+        window.addEventListener('load', simulate);
+        
+    </script>
+</body>
+</html>

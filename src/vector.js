@@ -61,6 +61,12 @@
     return this.x * v.x + this.y * v.y;
   };
 
+  Vec2.prototype.distanceTo = function (v) {
+    const dx = this.x - v.x;
+    const dy = this.y - v.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+  
   Vec2.prototype.div = function (v) {
     const self = this;
     self.x /= v.x;
