@@ -22,6 +22,9 @@
     <canvas id="birds_flocking" width="800" height="600"></canvas>
     <script src="../src/vector.js"></script>
     <script>
+        
+        const canvas = document.getElementById('birds_flocking');
+
         function Boid(position, velocity) {
             return {
                 position: position,
@@ -166,7 +169,6 @@
 
         // Drawing function (using a simple canvas for visualization)
         function drawBoids(boids) {
-            const canvas = document.getElementById('birds_flocking');
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
