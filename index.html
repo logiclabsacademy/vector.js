@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tearable Cloth Simulation</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="clothCanvas"></canvas>
+  <script src="./vector.js" ></script>
+  <script>
+    const canvas = document.getElementById('clothCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const gravity = new Vec2(0, 0.5);
+    const friction = 0.99;
+    const bounce = 0.9;
+    const clothWidth = 50;
+    const clothHeight = 30;
+    const spacing = 15;
+    const tearDistance = 60;
+
+    class Particle {
+      constructor(x, y) {
+        this.position = new Vec2(x, y);
+        this.oldPosition = new Vec2(x, y);
+        this.acceleration = new Vec2(0, 0);
+        this.pinned = false;
+      }
+
+      applyForce(force) {
+        this.acceleration.add(force);
+      }
+
+      update() {
+        if (this.pinned) return;
+        const velocity = this.position.clone().sub(this.oldPosition).scale(friction);
+        this.oldPosition = this.position.clone();
+        this.position.add(velocity).add(this.acceleration);
+        this.acceleration.scale(0);
+      }
+
+      constrainToCanvas() {
+        if (this.position.x < 0) {
+          this.position.x = 0;
+          this.oldPosition.x = -this.oldPosition.x * bounce;
+        }
+        if (this.position.x > canvas.width) {
+          this.position.x = canvas.width;
+          this.oldPosition.x = canvas.width + (canvas.width - this.oldPosition.x) * bounce;
+        }
+        if (this.position.y < 0) {
+          this.position.y = 0;
+          this.oldPosition.y = -this.oldPosition.y * bounce;
+        }
+        if (this.position.y > canvas.height) {
+          this.position.y = canvas.height;
+          this.oldPosition.y = canvas.height + (canvas.height - this.oldPosition.y) * bounce;
+        }
+      }
+    }
+
+    class Constraint {
+      constructor(p1, p2) {
+        this.p1 = p1;
+        this.p2 = p2;
+        this.length = p1.position.clone().sub(p2.position).magnitude();
+      }
+
+      solve() {
+        const diff = this.p1.position.clone().sub(this.p2.position);
+        const dist = diff.magnitude();
+        const difference = (this.length - dist) / dist;
+        const translate = diff.scale(difference / 2);
+
+        if (dist > tearDistance) {
+          this.p1 = null;
+          this.p2 = null;
+        } else {
+          if (!this.p1.pinned) this.p1.position.add(translate);
+          if (!this.p2.pinned) this.p2.position.sub(translate);
+        }
+      }
+
+      isValid() {
+        return this.p1 && this.p2;
+      }
+    }
+
+    const particles = [];
+    const constraints = [];
+
+    function initCloth() {
+      for (let y = 0; y <= clothHeight; y++) {
+        for (let x = 0; x <= clothWidth; x++) {
+          const particle = new Particle(x * spacing + canvas.width / 4, y * spacing + 20);
+          if (y === 0) particle.pinned = true;
+          particles.push(particle);
+
+          if (x > 0) {
+            constraints.push(new Constraint(particle, particles[particles.length - 2]));
+          }
+          if (y > 0) {
+            constraints.push(new Constraint(particle, particles[(clothWidth + 1) * (y - 1) + x]));
+          }
+        }
+      }
+    }
+
+    function update() {
+      particles.forEach(p => {
+        p.applyForce(gravity);
+        p.update();
+        p.constrainToCanvas();
+      });
+      constraints.forEach(c => {
+        if (c.isValid()) c.solve();
+      });
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      constraints.forEach(c => {
+        if (c.isValid()) {
+          ctx.moveTo(c.p1.position.x, c.p1.position.y);
+          ctx.lineTo(c.p2.position.x, c.p2.position.y);
+        }
+      });
+      ctx.stroke();
+    }
+
+    function animate() {
+      update();
+      render();
+      requestAnimationFrame(animate);
+    }
+
+    initCloth();
+    animate();
+  </script>
+</body>
+</html>
