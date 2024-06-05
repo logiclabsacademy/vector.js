@@ -29,6 +29,9 @@
     const canvas = document.getElementById('birds_flocking');
 
     function Boid(position, velocity) {
+      if (!(this instanceof Boid)) {
+        return new Boid(position, velocity);
+      }
       return {
         position: position,
         velocity: velocity,
@@ -63,6 +66,9 @@
     }
 
     function Flock() {
+      if (!(this instanceof Flock)) {
+        return new Flock();
+      }
       return {
         boids: [],
         addBoid: function (boid) {
@@ -180,7 +186,7 @@ canvas.addEventListener('click', function() {
       flock.run();
       drawBoids(flock.boids);
       // logBoidData(flock.boids); // Log boid data
-      requestAnimationFrame(simulate);
+  window.requestAnimationFrame(simulate);
     }
 
     // Function to log boid positions and velocities
@@ -229,7 +235,11 @@ canvas.addEventListener('click', function() {
 
 
     // Start the simulation
-    window.addEventListener('load', simulate);
+      window.addEventListener('load',function () {
+          reset();
+          simulate();
+        });
+    
     
 
   </script>
