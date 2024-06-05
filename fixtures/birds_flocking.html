@@ -32,7 +32,7 @@
       if (!(this instanceof Boid)) {
         return new Boid(position, velocity);
       }
-
+    
       return {
         position: position,
         velocity: velocity,
@@ -170,11 +170,12 @@
       for (let i = 0; i < 50; i++) { 
         const position = new Vector.Vec2(canvas.width / 2, canvas.height / 2);
         const angle = Math.random() * 2 * Math.PI;
-        const velocity = new Vector.Vec2(Math.cos(angle) * 50 + 5, Math.sin(angle) * 40 + 5);
-        flock.addBoid(new Boid(position, velocity));
-      }
+        const velocity = new Vector.Vec2(Math.cos(angle) * 50 + 5, Math.sin(angle) * 50 + 5);
+        flock.addBoid(new Boid(position, velocity)); 
+        
+      } 
     }
-    
+
     // Add event listener to reset the simulation when the canvas is clicked
     canvas.addEventListener('click', function() {
       reset();
