@@ -7,13 +7,13 @@
 </head>
 <body>
     <canvas id="birds_flocking" ></canvas>
+    <script src="../src/vector.js"></script>
     <script>
-    
     function Boid(position, velocity) {
   return {
     position: position,
     velocity: velocity,
-    acceleration: Vec2(0, 0),
+    acceleration: Vector.Vec2(0, 0),
     maxSpeed: 4,
     maxForce: 0.1,
     applyForce: function(force) {
@@ -25,7 +25,7 @@
         this.velocity = this.velocity.unit().scale(this.maxSpeed);
       }
       this.position = this.position.add(this.velocity);
-      this.acceleration = Vec2(0, 0);
+      this.acceleration = Vector.Vec2(0, 0);
     }
   };
 }
@@ -56,7 +56,7 @@ function Flock() {
     },
     separate: function(boid) {
       const desiredSeparation = 25.0;
-      let steer = Vec2(0, 0);
+      let steer = Vector.Vec2(0, 0);
       let count = 0;
       this.boids.forEach(other => {
         const distance = boid.position.sub(other.position).magnitude();
@@ -79,7 +79,7 @@ function Flock() {
     },
     align: function(boid) {
       const neighborDist = 50;
-      let sum = Vec2(0, 0);
+      let sum = Vector.Vec2(0, 0);
       let count = 0;
       this.boids.forEach(other => {
         const distance = boid.position.sub(other.position).magnitude();
@@ -96,11 +96,11 @@ function Flock() {
         }
         return steer;
       }
-      return Vec2(0, 0);
+      return Vector.Vec2(0, 0);
     },
     cohere: function(boid) {
       const neighborDist = 50;
-      let sum = Vec2(0, 0);
+      let sum = Vector.Vec2(0, 0);
       let count = 0;
       this.boids.forEach(other => {
         const distance = boid.position.sub(other.position).magnitude();
@@ -113,7 +113,7 @@ function Flock() {
         sum = sum.scale(1 / count);
         return this.seek(boid, sum);
       }
-      return Vec2(0, 0);
+      return Vector.Vec2(0, 0);
     },
     seek: function(boid, target) {
       const desired = target.sub(boid.position).unit().scale(boid.maxSpeed);
@@ -128,8 +128,8 @@ function Flock() {
     // Simulation parameters
 const flock = Flock();
 for (let i = 0; i < 100; i++) {
-  const position = Vec2(Math.random() * 500, Math.random() * 500);
-  const velocity = Vec2(Math.random() * 2 - 1, Math.random() * 2 - 1);
+  const position = Vector.Vec2(Math.random() * 500, Math.random() * 500);
+  const velocity = Vector.Vec2(Math.random() * 2 - 1, Math.random() * 2 - 1);
   flock.addBoid(Boid(position, velocity));
 }
 
