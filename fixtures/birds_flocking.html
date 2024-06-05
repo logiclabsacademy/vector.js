@@ -38,7 +38,7 @@
         position: position,
         velocity: velocity,
         acceleration: new Vector.Vec2(.5, .5),
-        maxSpeed: .005, // Adjusted max speed
+        maxSpeed: .05, // Adjusted max speed
         maxForce: 0.01, 
         applyForce: function (force) {
           this.acceleration = this.acceleration.add(force);
@@ -63,6 +63,7 @@
             this.position.y = canvas.height;
           }
         }
+        
       };
       return boid;
     }
@@ -218,6 +219,7 @@
     
 
     
+
     // Drawing function
     function drawBoids(boids) {
       const ctx = canvas.getContext('2d');
