@@ -37,9 +37,9 @@
       const boid = {
         position: position,
         velocity: velocity,
-        acceleration: new Vector.Vec2(5,5),
-        maxSpeed: 8, // Adjust max speed
-        maxForce: 0.03, // Adjust max force
+        acceleration: new Vector.Vec2(.5, .5),
+        maxSpeed: 1, // Adjusted max speed
+        maxForce: 0.03, 
         applyForce: function (force) {
           this.acceleration = this.acceleration.add(force);
         },
@@ -169,7 +169,6 @@
     // Simulation parameters
     const flock = new Flock();
 
- 
     // Add event listener to reset the simulation when the canvas is clicked
     canvas.addEventListener('click', function() {
       simulate();
@@ -188,9 +187,10 @@
       
       const boids = [];
       for (let i = 0; i <10; i++) {
-      const position = new Vector.Vec2(Math.random() * canvas.width, Math.random() * canvas.height);
-      const velocity = new Vector.Vec2(Math.cos(Math.random() * Math.PI * 2), Math.sin(Math.random() * Math.PI * 2)).scale(.5);  
-      console.log(velocity);
+      const angle = Math.random() * Math.PI * 2;
+      const radius = canvas.width / 4 * Math.random();
+      const position = new Vector.Vec2(canvas.width / 2 + radius * Math.cos(angle), canvas.height / 2 + radius * Math.sin(angle));
+      const velocity = new Vector.Vec2(-Math.sin(angle), Math.cos(angle)).scale(0.5);
       boids.push(Boid(position, velocity));
       }
       flock.boids = boids;
@@ -200,7 +200,7 @@
     
     let then = Date.now();
     setInterval(simulate, 1000 / 60);
-
+    
     // Drawing function
     function drawBoids(boids) {
       const ctx = canvas.getContext('2d');
@@ -237,11 +237,6 @@
     
     // Start the simulation
     window.addEventListener('load', simulate);
-       
-
-    
-    
-
   </script>
 </body>
 
