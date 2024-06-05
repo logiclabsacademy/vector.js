@@ -169,27 +169,26 @@
     // Simulation parameters
     const flock = new Flock();
 
-    // Reset the simulation
-function reset() {
-  flock.boids = [];
-  for (let i = 0; i < 50; i++) { 
-    const position = new Vector.Vec2(WIDTH/ 2, HEIGHT / 2);
-    const angle = Math.random() * 2 * Math.PI;
-    const velocity = new Vector.Vec2(Math.cos(angle) * 50 + 5, Math.sin(angle) * 50 + 5);
-    flock.addBoid(new Boid(position, velocity)); 
-  } 
-}
-
-
+ 
     // Add event listener to reset the simulation when the canvas is clicked
     canvas.addEventListener('click', function() {
-      reset();
       simulate();
     });
 
     // Simulation loop
     function simulate() {
       flock.run();
+      flock.boids.forEach(boid => {
+        boid.update();
+      });
+      const boids = [];
+      for (let i = 0; i < 50; i++) {
+        const position = new Vector.Vec2(Math.random() * canvas.width, Math.random() * canvas.height);
+        const velocity = new Vector.Vec2(Math.random() * 2 - 1, Math.random() * 2 - 1);
+        boids.push(Boid(position, velocity));
+      }
+      flock.boids = boids;
+
       drawBoids(flock.boids);
       window.requestAnimationFrame(simulate);
     }
@@ -228,10 +227,8 @@ function reset() {
 
     
     // Start the simulation
-      window.addEventListener('load',function () {
-          reset();
-          simulate();
-       });
+      window.addEventListener('load', simulate);
+       
 
     
     
