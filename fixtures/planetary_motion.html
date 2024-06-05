@@ -6,23 +6,29 @@
     <title>3D Solar System Simulation</title>
     <style>
          body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #000;
-        }
-        canvas {
-            display: block;
-        }
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #000;
+    }
+
+    canvas {
+      background-color: #fff;
+    }
     </style>
 </head>
 <body>
     <canvas id="solar_system"></canvas>
     <script type="module">
        import '../src/vector.js';
-        
+
+       const canvas = document.getElementById('solar_system');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
 class Sphere {
     constructor(position, mass, velocity = new Vector.Vec3(0, 0, 0), radius, color) {
         this.position = position;
@@ -31,7 +37,7 @@ class Sphere {
         this.radius = radius;
         this.color = color;
     }
-
+    
     applyForce(force) {
         const acceleration = force.scale(1 / this.mass);
         this.velocity.add(acceleration);
@@ -80,10 +86,6 @@ class Sphere {
     }
 }
 
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
 
 const G = 6.674e-11; // Gravitational constant
 const timeStep = 3600; // Time step in seconds (1 hour)
@@ -130,6 +132,8 @@ window.addEventListener('resize', () => {
 window.addEventListener('load', () => {
     simulate();
 });
+
+
 
 
     </script>
