@@ -16,6 +16,9 @@
   const Vector = {};
 
   function Vec2(x = 0, y = 0) {
+    if (!(this instanceof Vec2)) {
+      return new Vec2(x, y);
+    }
     this.x = x;
     this.y = y;
     return this;
