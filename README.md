@@ -1,5 +1,5 @@
 # Vector.js
-Vector.js is a lightweight JavaScript library for p erforming 2D and 3D vector operations . It provides convenient methods for vector arithmetic ,transformations, and projections.
+Vector.js is a lightweight JavaScript library for performing 2D and 3D vector operations . It provides convenient methods for vector arithmetic ,transformations, and projections.
 
 ## Installation
 You can include Vector.js directly in your HTML file:
