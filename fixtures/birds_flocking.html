@@ -165,6 +165,7 @@
     // Simulation parameters
     const flock = new Flock();
 
+    // Reset the simulation
     function reset() {
       flock.boids = [];
       for (let i = 0; i < 50; i++) { 
@@ -174,6 +175,7 @@
         flock.addBoid(new Boid(position, velocity)); 
         
       } 
+
     }
 
     // Add event listener to reset the simulation when the canvas is clicked
@@ -198,7 +200,7 @@
       });
     }
 
-
+    
     function drawTriangle(ctx, position, velocity) {
       const angle = Math.atan2(velocity.y, velocity.x);
       const size = 10; // Adjust the size of the triangle here
@@ -226,7 +228,8 @@
       window.addEventListener('load',function () {
           reset();
           simulate();
-        });
+       });
+
     
     
 
