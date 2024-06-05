@@ -38,8 +38,8 @@
         position: position,
         velocity: velocity,
         acceleration: new Vector.Vec2(.5, .5),
-        maxSpeed: 1, // Adjusted max speed
-        maxForce: 0.03, 
+        maxSpeed: .5, // Adjusted max speed
+        maxForce: 0.01, 
         applyForce: function (force) {
           this.acceleration = this.acceleration.add(force);
         },
@@ -193,6 +193,14 @@
       const velocity = new Vector.Vec2(-Math.sin(angle), Math.cos(angle)).scale(0.5);
       boids.push(Boid(position, velocity));
       }
+
+      // reset flock speed  if it is too fast or too slow using the maxSpeed and force property
+      flock.boids.forEach(boid => {
+        if (boid.velocity.magnitude() > boid.maxSpeed) {
+          boid.velocity = boid.velocity.unit().scale(boid.maxSpeed);
+        }
+      });
+      
       flock.boids = boids;
       drawBoids(flock.boids);
       window.requestAnimationFrame(simulate);
