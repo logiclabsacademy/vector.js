@@ -211,32 +211,38 @@
     return this;
   };
 
-  Vec3.prototype.rotX = function (theta) {
+  Vec3.prototype.rotX =function(theta) {
     const angleInRadian = (Math.PI / 180) * theta;
     const cosTheta = Math.cos(angleInRadian);
     const sinTheta = Math.sin(angleInRadian);
     const newY = this.y * cosTheta - this.z * sinTheta;
-    this.z = this.y * sinTheta + this.z * cosTheta;
+    const newZ = this.y * sinTheta + this.z * cosTheta;
     this.y = newY;
-  };
+    this.z = newZ;
+    return this;
+  }
 
-  Vec3.prototype.rotY = function (theta) {
+  Vec3.prototype.rotY = function(theta) {
     const angleInRadian = (Math.PI / 180) * theta;
     const cosTheta = Math.cos(angleInRadian);
     const sinTheta = Math.sin(angleInRadian);
-    const newX = this.x * cosTheta - this.z * sinTheta;
-    this.z = this.x * sinTheta + this.z * cosTheta;
+    const newX = this.x * cosTheta + this.z * sinTheta;
+    const newZ = -this.x * sinTheta + this.z * cosTheta;
     this.x = newX;
-  };
+    this.z = newZ;
+    return this;
+  },
 
-  Vec3.prototype.rotZ = function (theta) {
+  Vec3.prototype.rotZ = function(theta) {
     const angleInRadian = (Math.PI / 180) * theta;
     const cosTheta = Math.cos(angleInRadian);
     const sinTheta = Math.sin(angleInRadian);
     const newX = this.x * cosTheta - this.y * sinTheta;
-    this.y = this.x * sinTheta + this.y * cosTheta;
+    const newY = this.x * sinTheta + this.y * cosTheta;
     this.x = newX;
-  };
+    this.y = newY;
+    return this;
+  },
 
   Vec3.prototype.toArray = function () {
     return [this.x, this.y, this.z];
