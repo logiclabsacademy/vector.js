@@ -10,14 +10,14 @@
 </head>
 <body>
   <canvas id="clothCanvas"></canvas>
-  <script src="path/to/vector.js"></script>
+  <script src="./vector.js"></script>
   <script>
     const canvas = document.getElementById('clothCanvas');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const gravity = new Vec2(0, 0.1);
+    const gravity = new Vector.Vec2(0, 0.1);
     const friction = 0.99;
     const clothWidth = 50;
     const clothHeight = 30;
@@ -26,9 +26,9 @@
 
     class Particle {
       constructor(x, y, pinned = false) {
-        this.position = new Vec2(x, y);
-        this.oldPosition = new Vec2(x, y);
-        this.acceleration = new Vec2(0, 0);
+        this.position = new Vector.Vec2(x, y);
+        this.oldPosition = new Vector.Vec2(x, y);
+        this.acceleration = new Vector.Vec2(0, 0);
         this.pinned = pinned;
       }
 
