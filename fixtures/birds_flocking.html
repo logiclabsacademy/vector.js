@@ -27,16 +27,17 @@
   <script>
 
     const canvas = document.getElementById('birds_flocking');
-
+    const WIDTH = canvas.width  = 800 , HEIGHT = canvas.height = 600;
+    
     function Boid(position, velocity) {
       if (!(this instanceof Boid)) {
         return new Boid(position, velocity);
       }
     
-      return {
+      const boid = {
         position: position,
         velocity: velocity,
-        acceleration: new Vector.Vec2(5, 5),
+        acceleration: new Vector.Vec2(8, 12),
         maxSpeed: 10, // Adjust max speed
         maxForce: 0.05, // Adjust max force
         applyForce: function (force) {
@@ -63,13 +64,15 @@
           }
         }
       };
+      return boid;
     }
 
     function Flock() {
       if (!(this instanceof Flock)) {
         return new Flock();
       }
-      return {
+      const flock = {
+
         boids: [],
         addBoid: function (boid) {
           this.boids.push(boid);
@@ -160,23 +163,23 @@
           return steer;
         }
       };
+      return flock;
     }
 
     // Simulation parameters
     const flock = new Flock();
 
     // Reset the simulation
-    function reset() {
-      flock.boids = [];
-      for (let i = 0; i < 50; i++) { 
-        const position = new Vector.Vec2(canvas.width / 2, canvas.height / 2);
-        const angle = Math.random() * 2 * Math.PI;
-        const velocity = new Vector.Vec2(Math.cos(angle) * 50 + 5, Math.sin(angle) * 50 + 5);
-        flock.addBoid(new Boid(position, velocity)); 
-        
-      } 
+function reset() {
+  flock.boids = [];
+  for (let i = 0; i < 50; i++) { 
+    const position = new Vector.Vec2(WIDTH/ 2, HEIGHT / 2);
+    const angle = Math.random() * 2 * Math.PI;
+    const velocity = new Vector.Vec2(Math.cos(angle) * 50 + 5, Math.sin(angle) * 50 + 5);
+    flock.addBoid(new Boid(position, velocity)); 
+  } 
+}
 
-    }
 
     // Add event listener to reset the simulation when the canvas is clicked
     canvas.addEventListener('click', function() {
