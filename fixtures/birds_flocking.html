@@ -204,7 +204,7 @@
       boids.push(Boid(position, velocity));
       }
 
-      // reset flock speed  if it is too fast or too slow using the maxSpeed and force property
+      // Using the maxSpeed property to limit the velocity.
       flock.boids.forEach(boid => {
         if (boid.velocity.magnitude() > boid.maxSpeed) {
           boid.velocity = boid.velocity.unit().scale(boid.maxSpeed);
