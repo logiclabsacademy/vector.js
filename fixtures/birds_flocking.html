@@ -156,18 +156,21 @@
     }
 
     // Simulation parameters
-    const flock = Flock();
-    for (let i = 0; i < 100; i++) {
-      const position = new Vector.Vec2(Math.random() * canvas.width, Math.random() * canvas.height);
-      const velocity = new Vector.Vec2(Math.random() * 2 - 1, Math.random() * 2 - 1);
-      flock.addBoid(Boid(position, velocity));
-    }
+const flock = Flock();
+for (let i = 0; i < 100; i++) {
+  const position = new Vector.Vec2(Math.random() * canvas.width, Math.random() * canvas.height);
+  // Generate random angle for direction between 0 and 2*pi
+  const angle = Math.random() * 2 * Math.PI;
+  // Calculate x and y components of velocity using the angle
+  const velocity = new Vector.Vec2(Math.cos(angle) * 40 - 20, Math.sin(angle) * 40 - 20);
+  flock.addBoid(Boid(position, velocity));
+}
 
     // Simulation loop
     function simulate() {
       flock.run();
       drawBoids(flock.boids);
-      logBoidData(flock.boids); // Log boid data
+      // logBoidData(flock.boids); // Log boid data
       requestAnimationFrame(simulate);
     }
 
@@ -218,7 +221,7 @@
 
     // Start the simulation
     window.addEventListener('load', simulate);
-
+    
 
   </script>
 </body>
