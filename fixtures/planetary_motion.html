@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planetary Motion Simulation</title>
+    <title>Solar System Simulation</title>
     <style>
-     body {
+        body {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -13,61 +13,85 @@
             margin: 0;
             background-color: #000;
         }
-
         canvas {
             background-color: #fff;
         }
     </style>
 </head>
 <body>
-    <canvas id="planetary_motion"></canvas>
-    <script src="../src/vector.js"></script>
-    <script>
-        const canvas = document.getElementById('planetary_motion');
+    <canvas id="solar_system"></canvas>
+
+    <script type="module">
+        import  '../src/vector.js';
+
+        const canvas = document.getElementById('solar_system');
         const ctx = canvas.getContext('2d');
-        const WIDTH = canvas.width = window.innerWidth;
-        const HEIGHT = canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const WIDTH = canvas.width;
+        const HEIGHT = canvas.height;
 
-        // Define celestial bodies
-        const sun = new Vector.Vec2(WIDTH / 2, HEIGHT / 2);
-        const earth = new Vector.Vec2(WIDTH / 2 + 200, HEIGHT / 2);
-        const earthVelocity = new Vector.Vec2(0, 2); // Adjust velocity as needed
-        const earthMass = 1e24; // Adjust mass as needed
+        class CelestialBody {
+            constructor(position, mass, velocity = new Vector.Vec2(0, 0), radius, color) {
+                this.position = position;
+                this.mass = mass;
+                this.velocity = velocity;
+                this.radius = radius;
+                this.color = color;
+            }
 
-        // Simulation parameters
-        const G = 6.674e-11; // Gravitational constant
-        const timeStep = 1; // Time step in seconds
+            applyForce(force) {
+                const acceleration = force.scale(1 / this.mass);
+                this.velocity.add(acceleration);
+            }
 
-        // Main simulation loop
-        function simulate() {
-            // Clear canvas
-            ctx.clearRect(0, 0, WIDTH, HEIGHT);
-            
-            // Calculate gravitational force
-            const distance = earth.distanceTo(sun);
-            const forceMagnitude = (G * sun.mass * earthMass) / Math.pow(distance, 2);
-            const forceDirection = sun.sub(earth).unit();
-            const gravitationalForce = forceDirection.scale(forceMagnitude);
+            updatePosition(timeStep) {
+                this.position.add(this.velocity.scale(timeStep));
+            }
 
-            // Update earth's velocity and position
-            const acceleration = gravitationalForce.scale(1 / earthMass);
-            earthVelocity.add(acceleration.scale(timeStep));
-            earth.add(earthVelocity.scale(timeStep));
-
-            // Draw celestial bodies
-            drawCircle(sun, 20, '#FFD700'); // Sun
-            drawCircle(earth, 10, '#4682B4'); // Earth
-
-            // Request next frame
-            requestAnimationFrame(simulate);
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
         }
 
-        // Function to draw a circle
-        function drawCircle(position, radius, color) {
-            ctx.beginPath();
-            ctx.arc(position.x, position.y, radius, 0, Math.PI * 2);
-            ctx.fillStyle = color;
-            ctx.fill();
+        const G = 6.674e-11; // Gravitational constant
+        const timeStep = 3600; // Time step in seconds (1 hour)
+
+        const sun = new CelestialBody(new Vector.Vec2(WIDTH / 2, HEIGHT / 2), 1.989e30, new Vector.Vec2(0, 0), 30, '#FFD700');
+        const earth = new CelestialBody(new Vector.Vec2(WIDTH / 2 + 150, HEIGHT / 2), 5.972e24, new Vector.Vec2(0, 29780), 10, '#4682B4');
+        const moon = new CelestialBody(new Vector.Vec2(WIDTH / 2 + 170, HEIGHT / 2), 7.348e22, new Vector.Vec2(0, 30780), 3, '#A9A9A9');
+
+        const celestialBodies = [sun, earth, moon];
+
+        function calculateGravitationalForce(body1, body2) {
+            const distanceVector = body2.position.sub(body1.position);
+            const distance = distanceVector.distanceTo(new Vector.Vec2(0, 0));
+            const forceMagnitude = (G * body1.mass * body2.mass) / (distance * distance);
+            const force = distanceVector.unit().scale(forceMagnitude);
+            return force;
+        }
+
+        function simulate() {
+            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+            for (let i = 0; i < celestialBodies.length; i++) {
+                for (let j = 0; j < celestialBodies.length; j++) {
+                    if (i !== j) {
+                        const force = calculateGravitationalForce(celestialBodies[i], celestialBodies[j]);
+                        celestialBodies[i].applyForce(force);
+                    }
+                }
+            }
+
+            celestialBodies.forEach(body => {
+                body.updatePosition(timeStep);
+                body.draw();
+            });
+
+            requestAnimationFrame(simulate);
         }
 
         window.addEventListener('resize', () => {
@@ -75,9 +99,8 @@
             canvas.height = window.innerHeight;
         });
 
-        // Start the simulation
         window.addEventListener('load', simulate);
-        
+
     </script>
 </body>
 </html>

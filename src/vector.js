@@ -212,6 +212,13 @@
     );
   };
 
+  Vec3.prototype.distanceTo = function (obj) {
+    const dx = this.x - obj.x;
+    const dy = this.y - obj.y;
+    const dz = this.z - obj.z;
+    return Math.sqrt(dx * dx + dy * dy + dz * dz);
+  };
+  
   Vec3.prototype.unit = function () {
     const mag = this.magnitude();
     this.x /= mag;
