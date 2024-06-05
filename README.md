@@ -34,3 +34,9 @@ API Reference
     toArray(): Returns an array representation of the vector.
     clone(): Creates a deep copy of the vector.
     project(cameraPosition, scalingFactor, viewportWidth, viewportHeight): Projects the 3D vector onto a 2D plane.
+
+## Usage
+### See Examples in `fixtures` directory
+1. Birds Flocking
+2. Planetary Motion
+3. Tearable Cloth
