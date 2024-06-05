@@ -35,33 +35,32 @@
       return {
         position: position,
         velocity: velocity,
-        acceleration: new Vector.Vec2(0, 0),
-        maxSpeed: 10,
-        maxForce: 0.05,
+        acceleration: new Vector.Vec2(5, 5),
+        maxSpeed: 10, // Adjust max speed
+        maxForce: 0.05, // Adjust max force
         applyForce: function (force) {
           this.acceleration = this.acceleration.add(force);
         },
         update: function () {
-    this.velocity = this.velocity.add(this.acceleration);
-    if (this.velocity.magnitude() > this.maxSpeed) {
-        this.velocity = this.velocity.unit().scale(this.maxSpeed);
-    }
-    this.position = this.position.add(this.velocity);
-    this.acceleration = Vector.Vec2(0, 0);
+          this.velocity = this.velocity.add(this.acceleration);
+          if (this.velocity.magnitude() > this.maxSpeed) {
+            this.velocity = this.velocity.unit().scale(this.maxSpeed);
+          }
+          this.position = this.position.add(this.velocity);
+          this.acceleration = Vector.Vec2(0, 0);
 
-    // Keep the boids within the canvas bounds
-    if (this.position.x < 0) {
-        this.position.x = 0;
-    } else if (this.position.x > canvas.width) {
-        this.position.x = canvas.width;
-    }
-    if (this.position.y < 0) {
-        this.position.y = 0;
-    } else if (this.position.y > canvas.height) {
-        this.position.y = canvas.height;
-    }
-}
-
+          // Keep the boids within the canvas bounds
+          if (this.position.x < 0) {
+            this.position.x = 0;
+          } else if (this.position.x > canvas.width) {
+            this.position.x = canvas.width;
+          }
+          if (this.position.y < 0) {
+            this.position.y = 0;
+          } else if (this.position.y > canvas.height) {
+            this.position.y = canvas.height;
+          }
+        }
       };
     }
 
@@ -85,12 +84,13 @@
           const alignment = this.align(boid);
           const cohesion = this.cohere(boid);
 
+          // Adjust coefficients here
           boid.applyForce(separation.scale(1.5));
           boid.applyForce(alignment.scale(1.0));
           boid.applyForce(cohesion.scale(1.0));
         },
         separate: function (boid) {
-          const desiredSeparation = 25.0;
+          const desiredSeparation = 25.0; // Adjust desired separation
           let steer = new Vector.Vec2(0, 0);
           let count = 0;
           this.boids.forEach(other => {
@@ -113,7 +113,7 @@
           return steer;
         },
         align: function (boid) {
-          const neighborDist = 50;
+          const neighborDist = 50; // Adjust neighbor distance
           let sum = new Vector.Vec2(0, 0);
           let count = 0;
           this.boids.forEach(other => {
@@ -134,7 +134,7 @@
           return new Vector.Vec2(0, 0);
         },
         cohere: function (boid) {
-          const neighborDist = 50;
+          const neighborDist = 50; // Adjust neighbor distance
           let sum = new Vector.Vec2(0, 0);
           let count = 0;
           this.boids.forEach(other => {
@@ -162,54 +162,40 @@
     }
 
     // Simulation parameters
-const flock =  new Flock();
-function reset() {
-  flock.boids = [];
-  for (let i = 0; i < 50; i++) {
-    const position = new Vector.Vec2(Math.random() * canvas.width, Math.random() * canvas.height);
-    const angle = Math.random() * 2 * Math.PI;
-    const velocity = new Vector.Vec2(Math.cos(angle) * 40 - 20, Math.sin(angle) * 40 - 20);
-    flock.addBoid(new Boid(position, velocity));
-  }
-}
+    const flock = new Flock();
 
+    function reset() {
+      flock.boids = [];
+      for (let i = 0; i < 50; i++) { // Adjust number of boids
+        const position = new Vector.Vec2(Math.random() * canvas.width, Math.random() * canvas.height);
+        const angle = Math.random() * 2 * Math.PI;
+        const velocity = new Vector.Vec2(Math.cos(angle) * 40 - 20, Math.sin(angle) * 40 - 20);
+        flock.addBoid(new Boid(position, velocity));
+      }
+    }
 
-// Add event listener to reset the simulation when the canvas is clicked
-canvas.addEventListener('click', function() {
-  reset();
-  simulate();
-});
-
+    // Add event listener to reset the simulation when the canvas is clicked
+    canvas.addEventListener('click', function() {
+      reset();
+      simulate();
+    });
 
     // Simulation loop
     function simulate() {
       flock.run();
       drawBoids(flock.boids);
-      // logBoidData(flock.boids); // Log boid data
-  window.requestAnimationFrame(simulate);
+      window.requestAnimationFrame(simulate);
     }
 
-    // Function to log boid positions and velocities
-    function logBoidData(boids) {
-      const data = boids.map(boid => {
-        return {
-          Position: { x: boid.position.x, y: boid.position.y },
-          Velocity: { x: boid.velocity.x, y: boid.velocity.y }
-        };
-      });
-      console.table(data);
-    }
-
-
-    // Drawing function (using a simple canvas for visualization)
+    // Drawing function
     function drawBoids(boids) {
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       boids.forEach(boid => {
         drawTriangle(ctx, boid.position, boid.velocity);
       });
     }
+
 
     function drawTriangle(ctx, position, velocity) {
       const angle = Math.atan2(velocity.y, velocity.x);
