@@ -22,7 +22,7 @@
 <body>
     <canvas id="solar_system"></canvas>
     <script type="module">
-       import '../src/vector.js';
+       import '../src/vector.js'; // Correct usage.
 
        const canvas = document.getElementById('solar_system');
 const ctx = canvas.getContext('2d');
@@ -31,6 +31,19 @@ canvas.height = window.innerHeight;
 
 class Sphere {
     constructor(position, mass, velocity = new Vector.Vec3(0, 0, 0), radius, color) {
+        // clip postion to canvas
+        if (position.x < 0) {
+            position.x = 0;
+        } else if (position.x > canvas.width) {
+            position.x = canvas.width;
+        }
+
+        if (position.y < 0) {
+            position.y = 0;
+        } else if (position.y > canvas.height) {
+            position.y = canvas.height;
+        }
+
         this.position = position;
         this.mass = mass;
         this.velocity = velocity;
@@ -41,6 +54,7 @@ class Sphere {
     applyForce(force) {
         const acceleration = force.scale(1 / this.mass);
         this.velocity.add(acceleration);
+
     }
 
     updatePosition(timeStep) {
@@ -84,10 +98,12 @@ class Sphere {
             }
         }
     }
+
+
 }
 
 
-const G = 6.674e-11; // Gravitational constant
+const G = 1e24; // Gravitational constant
 const timeStep = 3600; // Time step in seconds (1 hour)
 
 const sun = new Sphere(new Vector.Vec3(400, 300, 0), 1.989e30, new Vector.Vec3(0, 0, 0), 30, [255, 204, 0, 1.0]);
@@ -96,6 +112,7 @@ const moon = new Sphere(new Vector.Vec3(150 + 384400 / 1000 + 400, 300, 0), 7.34
 
 const celestialBodies = [sun, earth, moon];
 
+console.log(celestialBodies);
 function calculateGravitationalForce(body1, body2) {
     const distanceVector = body2.position.sub(body1.position);
     const distance = distanceVector.distanceTo(new Vector.Vec3(0, 0, 0));
@@ -119,6 +136,29 @@ function simulate() {
     celestialBodies.forEach(body => {
         body.updatePosition(timeStep);
         body.draw(ctx);
+        
+        // Prevent celestial bodies from leaving the canvas
+        if (body.position.x - body.radius < 0 || body.position.x + body.radius > canvas.width) {
+            body.velocity.x *= -1;
+        }
+
+        if (body.position.y - body.radius < 0 || body.position.y + body.radius > canvas.height) {
+            body.velocity.y *= -1;
+        }
+
+        if (body.position.z - body.radius < 0 || body.position.z + body.radius > canvas.height) {
+            body.velocity.z *= -1;
+        }
+
+        // project 3D to 2D using Vec3.project()
+        const projected = body.position.project(400, 300, 200, 200, 200);
+        ctx.beginPath();
+        ctx.arc(projected.x, projected.y, body.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = `rgba(${body.color[0]}, ${body.color[1]}, ${body.color[2]}, ${body.color[3]})`;
+        ctx.fill();
+        
+
+
     });
 
     requestAnimationFrame(simulate);
@@ -132,8 +172,6 @@ window.addEventListener('resize', () => {
 window.addEventListener('load', () => {
     simulate();
 });
-
-
 
 
     </script>
