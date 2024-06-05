@@ -10,14 +10,14 @@
 </head>
 <body>
   <canvas id="clothCanvas"></canvas>
-  <script src="./vector.js"></script>
+  <script src="path/to/vector.js"></script>
   <script>
     const canvas = document.getElementById('clothCanvas');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const gravity = new Vector.Vec2(0, 0.1);
+    const gravity = new Vec2(0, 0.1);
     const friction = 0.99;
     const clothWidth = 50;
     const clothHeight = 30;
@@ -26,9 +26,9 @@
 
     class Particle {
       constructor(x, y, pinned = false) {
-        this.position = new Vector.Vec2(x, y);
-        this.oldPosition = new Vector.Vec2(x, y);
-        this.acceleration = new Vector.Vec2(0, 0);
+        this.position = new Vec2(x, y);
+        this.oldPosition = new Vec2(x, y);
+        this.acceleration = new Vec2(0, 0);
         this.pinned = pinned;
       }
 
@@ -69,6 +69,7 @@
         this.p1 = p1;
         this.p2 = p2;
         this.length = p1.position.clone().sub(p2.position).magnitude();
+        this.torn = false;
       }
 
       solve() {
@@ -78,6 +79,7 @@
         const translate = diff.scale(difference / 2);
 
         if (dist > tearDistance) {
+          this.torn = true;
           this.p1 = null;
           this.p2 = null;
         } else {
@@ -131,12 +133,12 @@
       ctx.beginPath();
       constraints.forEach(c => {
         if (c.isValid()) {
+          ctx.strokeStyle = c.torn ? 'red' : 'black';
           ctx.moveTo(c.p1.position.x, c.p1.position.y);
           ctx.lineTo(c.p2.position.x, c.p2.position.y);
+          ctx.stroke();
         }
       });
-      ctx.strokeStyle = 'black';
-      ctx.stroke();
 
       ctx.fillStyle = 'red';
       particles.forEach(p => {
@@ -156,6 +158,7 @@
           const dy = (c.p1.position.y + c.p2.position.y) / 2 - mouseY;
           const distance = Math.sqrt(dx * dx + dy * dy);
           if (distance < spacing) {
+            c.torn = true;
             c.p1 = null;
             c.p2 = null;
           }
