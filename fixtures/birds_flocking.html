@@ -38,7 +38,7 @@
         position: position,
         velocity: velocity,
         acceleration: new Vector.Vec2(.5, .5),
-        maxSpeed: .5, // Adjusted max speed
+        maxSpeed: .005, // Adjusted max speed
         maxForce: 0.01, 
         applyForce: function (force) {
           this.acceleration = this.acceleration.add(force);
@@ -174,12 +174,22 @@
       simulate();
     });
 
+    let then = Date.now();
+    const fps = 15;
+    const interval = 1000 / fps;
+    let delta = 0;
+
     // Simulation loop
     function simulate() {
-      const now = Date.now();
-      const elapsed = now - then;
+      let now = Date.now();
+      delta += now - then;
       then = now;
-      
+      if (delta < interval) {
+        window.requestAnimationFrame(simulate);
+        return;
+      }
+      delta = delta % interval;
+
       flock.run();
       flock.boids.forEach(boid => {
       boid.update();
@@ -206,8 +216,7 @@
       window.requestAnimationFrame(simulate);
     }
     
-    let then = Date.now();
-    setInterval(simulate, 1000 / 60);
+
     
     // Drawing function
     function drawBoids(boids) {
