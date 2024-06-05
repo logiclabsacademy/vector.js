@@ -10,28 +10,26 @@
 </head>
 <body>
   <canvas id="clothCanvas"></canvas>
-  <script src="./vector.js" ></script>
+  <script src="./vector.js"></script>
   <script>
     const canvas = document.getElementById('clothCanvas');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    const {Vec2,Vec3} =Vector;
 
-    const gravity = new Vec2(0, 0.5);
+    const gravity = new Vector.Vec2(0, 0.1);
     const friction = 0.99;
-    const bounce = 0.9;
     const clothWidth = 50;
     const clothHeight = 30;
     const spacing = 15;
     const tearDistance = 60;
 
     class Particle {
-      constructor(x, y) {
-        this.position = new Vec2(x, y);
-        this.oldPosition = new Vec2(x, y);
-        this.acceleration = new Vec2(0, 0);
-        this.pinned = false;
+      constructor(x, y, pinned = false) {
+        this.position = new Vector.Vec2(x, y);
+        this.oldPosition = new Vector.Vec2(x, y);
+        this.acceleration = new Vector.Vec2(0, 0);
+        this.pinned = pinned;
       }
 
       applyForce(force) {
@@ -49,19 +47,19 @@
       constrainToCanvas() {
         if (this.position.x < 0) {
           this.position.x = 0;
-          this.oldPosition.x = -this.oldPosition.x * bounce;
+          this.oldPosition.x = this.position.x;
         }
         if (this.position.x > canvas.width) {
           this.position.x = canvas.width;
-          this.oldPosition.x = canvas.width + (canvas.width - this.oldPosition.x) * bounce;
+          this.oldPosition.x = this.position.x;
         }
         if (this.position.y < 0) {
           this.position.y = 0;
-          this.oldPosition.y = -this.oldPosition.y * bounce;
+          this.oldPosition.y = this.position.y;
         }
         if (this.position.y > canvas.height) {
           this.position.y = canvas.height;
-          this.oldPosition.y = canvas.height + (canvas.height - this.oldPosition.y) * bounce;
+          this.oldPosition.y = this.position.y;
         }
       }
     }
@@ -99,8 +97,8 @@
     function initCloth() {
       for (let y = 0; y <= clothHeight; y++) {
         for (let x = 0; x <= clothWidth; x++) {
-          const particle = new Particle(x * spacing + canvas.width / 4, y * spacing + 20);
-          if (y === 0) particle.pinned = true;
+          const pinned = y === 0; // Pin the top row
+          const particle = new Particle(x * spacing + canvas.width / 4, y * spacing + 20, pinned);
           particles.push(particle);
 
           if (x > 0) {
@@ -119,9 +117,13 @@
         p.update();
         p.constrainToCanvas();
       });
-      constraints.forEach(c => {
-        if (c.isValid()) c.solve();
-      });
+
+      // Satisfy constraints multiple times for better stability
+      for (let i = 0; i < 5; i++) {
+        constraints.forEach(c => {
+          if (c.isValid()) c.solve();
+        });
+      }
     }
 
     function render() {
@@ -133,7 +135,32 @@
           ctx.lineTo(c.p2.position.x, c.p2.position.y);
         }
       });
+      ctx.strokeStyle = 'black';
       ctx.stroke();
+
+      ctx.fillStyle = 'red';
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.position.x, p.position.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function handleMouseClick(event) {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+      constraints.forEach(c => {
+        if (c.isValid()) {
+          const dx = (c.p1.position.x + c.p2.position.x) / 2 - mouseX;
+          const dy = (c.p1.position.y + c.p2.position.y) / 2 - mouseY;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance < spacing) {
+            c.p1 = null;
+            c.p2 = null;
+          }
+        }
+      });
     }
 
     function animate() {
@@ -142,6 +169,7 @@
       requestAnimationFrame(animate);
     }
 
+    canvas.addEventListener('click', handleMouseClick);
     initCloth();
     animate();
   </script>
