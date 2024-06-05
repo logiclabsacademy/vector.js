@@ -34,21 +34,24 @@
   });
 
   Vec2.prototype.scale = function (n) {
-    this.x *= n;
-    this.y *= n;
-    return this;
+    const self = this;
+    self.x *= n;
+    self.y *= n;
+    return self;
   };
 
   Vec2.prototype.add = function (v) {
-    this.x += v.x;
-    this.y += v.y;
-    return this;
+    const self = this;
+    self.x += v.x;
+    self.y += v.y;
+    return self;
   };
 
   Vec2.prototype.sub = function (v) {
-    this.x -= v.x;
-    this.y -= v.y;
-    return this;
+    const self = this;
+    self.x -= v.x;
+    self.y -= v.y;
+    return self;
   };
 
   Vec2.prototype.dot = function (v) {
@@ -56,9 +59,10 @@
   };
 
   Vec2.prototype.div = function (v) {
-    this.x /= v.x;
-    this.y /= v.y;
-    return this;
+    const self = this;
+    self.x /= v.x;
+    self.y /= v.y;
+    return self;
   };
 
   Vec2.prototype.magnitude = function () {

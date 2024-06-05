@@ -175,9 +175,18 @@
       requestAnimationFrame(animate);
     }
 
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    window.addEventListener('load', () => {
+      initCloth();
+      animate();
+    });
+    
     canvas.addEventListener('click', handleMouseClick);
-    initCloth();
-    animate();
+    
   </script>
 </body>
 </html>
