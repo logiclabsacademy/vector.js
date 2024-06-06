@@ -255,12 +255,12 @@
     const angleInRadian = (Math.PI / 180) * theta;
     const cosTheta = Math.cos(angleInRadian);
     const sinTheta = Math.sin(angleInRadian);
-    const newX = this.x * cosTheta + this.z * sinTheta;
-    const newZ = -this.x * sinTheta + this.z * cosTheta;
+    const newX = this.x * cosTheta - this.z * sinTheta;
+    const newZ = this.x * sinTheta + this.z * cosTheta;
     this.x = newX;
     this.z = newZ;
     return this;
-  },
+  };
 
   Vec3.prototype.rotZ = function(theta) {
     const angleInRadian = (Math.PI / 180) * theta;

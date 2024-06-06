@@ -175,13 +175,25 @@ class Sphere {
 const mercury = new Sphere(new Vector.Vec3(0, 0, 0), 5, 'gray', sun);
 const venus = new Sphere(new Vector.Vec3(0, 0, 0), 10, 'orange', sun);
 const earth = new Sphere(new Vector.Vec3(0, 0, 0), 10, 'blue', sun);
+const earthMoon = new Sphere(new Vector.Vec3(0, 0, 0), 2, 'gray',null);
 const mars = new Sphere(new Vector.Vec3(0, 0, 0), 7, 'red', sun);
+// const jupiter = new Sphere(new Vector.Vec3(0, 0, 0), 20, 'brown', sun);
+// const saturn = new Sphere(new Vector.Vec3(0, 0, 0), 15, 'yellow', sun);
+// const uranus = new Sphere(new Vector.Vec3(0, 0, 0), 12, 'cyan', sun);
+// const neptune = new Sphere(new Vector.Vec3(0, 0, 0), 12, 'blue', sun);
+
 
 // Rotate the sun
 sun.update = function() {
     this.position.rotZ(.45);
 };
-
+earthMoon.update = function() {
+    const earthPosition = earth.position;
+    this.position.x = earthPosition.x + 20;
+    this.position.y = earthPosition.y;
+    this.position.rotZ(1);
+    
+};
 // Add celestial bodies to the solar system
 const solarSystem = new SolarSystem('solar_system');
 solarSystem.addObject(sun);
@@ -189,6 +201,12 @@ solarSystem.addObject(mercury);
 solarSystem.addObject(venus);
 solarSystem.addObject(earth);
 solarSystem.addObject(mars);
+solarSystem.addObject(earthMoon);
+// solarSystem.addObject(jupiter);
+// solarSystem.addObject(saturn);
+// solarSystem.addObject(uranus);
+// solarSystem.addObject(neptune);
+
 
 // Resize canvas when the window is resized
     window.addEventListener('resize', () => {
