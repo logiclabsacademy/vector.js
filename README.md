@@ -53,7 +53,8 @@ let v = new Vec3(1, 2, 3);
 3. Tearable Cloth
 
 
-## Python Server
+## Serve with Python
+
 ```bash
 python -m http.server 8000 -b '127.0.0.1'
 ```
