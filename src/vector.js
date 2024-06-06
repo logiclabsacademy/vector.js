@@ -215,7 +215,7 @@
     this.z *= obj.z;
     return this;
   };
-  
+
   Vec3.prototype.magnitude = function () {
     return Math.sqrt(
       Math.pow(this.x, 2) + Math.pow(this.y, 2) + Math.pow(this.z, 2)
@@ -297,17 +297,22 @@
   // Project a 3D point to 2D point
   
   Object.defineProperty(Vec3.prototype, 'project', {
-    value: function(cameraPosition, viewport = { height: 100, width: 100 }, scalingFactor = 45) {
-        const { height, width } = viewport;
-        const cameraToPoint = new Vec3(
-            this.x - cameraPosition.x,
-            this.y - cameraPosition.y,
-            this.z - cameraPosition.z
-        );
+    value: function(cameraPosition, viewport, scalingFactor ) {
+      const { width, height } = viewport;
+      const cameraToPoint = new Vec3(
+        this.x - cameraPosition.x,
+        this.y - cameraPosition.y,
+        this.z - cameraPosition.z
+    );
+
+    if(!scalingFactor){
+       scalingFactor =100 ?? cameraPosition.z / (cameraPosition.z - this.z);
+    }
         const projectedX = (cameraToPoint.x / cameraToPoint.z) * scalingFactor + (width / 2);
         const projectedY = (cameraToPoint.y / cameraToPoint.z) * scalingFactor + (height / 2);
         return new Vec2(projectedX, projectedY);
-    },
+    
+  },
     writable: false,
     configurable: false,
     enumerable: false

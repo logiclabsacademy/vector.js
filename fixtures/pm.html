@@ -27,105 +27,121 @@
     import '../src/vector.js';
     
     class Sphere {
-    constructor(position, radius, color, nSegments = 50) {
-        this.position = position;
-        this.radius = radius;
-        this.color = color;
-        this.nSegments = nSegments;
-    }
-
-    draw(ctx, camera, viewport = { width: ctx.canvas.width, height: ctx.canvas.height }) {
-        for (let i = 0; i < this.nSegments; i++) {
-            
-            const step = 2 * Math.PI / this.nSegments;
-
-            const theta1 = i * 2 * Math.PI / this.nSegments;
-            const theta2 = (i + 1) * 2 * Math.PI / this.nSegments;
-
-
-            const x1 = this.position.x + this.radius * Math.cos(theta1);
-            const y1 = this.position.y + this.radius * Math.sin(theta1);
-            const z1 = this.position.z;
-
-            const x2 = this.position.x + this.radius * Math.cos(theta2);
-            const y2 = this.position.y + this.radius * Math.sin(theta2);
-            const z2 = this.position.z;
-
-            const p1 = new Vector.Vec3(x1, y1, z1).project(camera.position, viewport);
-            const p2 = new Vector.Vec3(x2, y2, z2).project(camera.position, viewport);
-            
-            ctx.beginPath();    
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = this.color;
-            ctx.stroke();
-            ctx.closePath();
+        constructor(position, radius, color, nSegments = 50, orbitRadius = 0, orbitSpeed = 0) {
+            this.position = position;
+            this.radius = radius;
+            this.color = color;
+            this.nSegments = nSegments;
+            this.orbitRadius = orbitRadius;
+            this.orbitSpeed = orbitSpeed;
+            this.orbitAngle = 0;
         }
-    }
-}
-class SolarSystem {
-    constructor(canvasId) {
-        this.canvas = document.getElementById(canvasId);
-        this.ctx = this.canvas.getContext('2d');
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-        this.camera = {
-            position: new Vector.Vec3(0, 0, -75),
-            distance: 50,
-        };
 
-        this.viewport = {
-            width: this.canvas.width,
-            height: this.canvas.height
-        };
+        updatePosition() {
+            if (this.orbitRadius !== 0) {
+                this.orbitAngle += this.orbitSpeed;
+                this.position.x = this.orbitRadius * Math.cos(this.orbitAngle);
+                this.position.z = this.orbitRadius * Math.sin(this.orbitAngle);
+                console.log(`Position updated: ${this.position.x}, ${this.position.z}`);
+            }
+        }
 
-        this.objects = [];
-    }
+        draw(ctx, camera, viewport = { width: ctx.canvas.width, height: ctx.canvas.height }) {
+            for (let i = 0; i < this.nSegments; i++) {
+                const step = Math.sin(i * 2 * Math.PI / this.nSegments);
+                const theta1 = i * 2 * Math.PI / this.nSegments;
+                const theta2 = (i + 1) * 2 * Math.PI / this.nSegments;
 
-    addObject(object) {
-        this.objects.push(object);
-    }
+                const x1 = this.position.x + this.radius * Math.cos(theta1);
+                const y1 = this.position.y + this.radius * Math.sin(theta1) * step;
+                const z1 = this.position.z;
 
-    update() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        for (let object of this.objects) {
-            object.draw(this.ctx, this.camera, this.viewport);
+                const x2 = this.position.x + this.radius * Math.cos(theta2);
+                const y2 = this.position.y + this.radius * Math.sin(theta2);
+                const z2 = this.position.z;
+
+                const p1 = new Vector.Vec3(x1, y1, z1).project(camera.position, viewport);
+                const p2 = new Vector.Vec3(x2, y2, z2).project(camera.position, viewport);
+
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.strokeStyle = this.color;
+                ctx.stroke();
+                ctx.closePath();
+            }
         }
     }
 
-    animate() {
-        this.update();
-        requestAnimationFrame(this.animate.bind(this));
+    class SolarSystem {
+        constructor(canvasId) {
+            this.canvas = document.getElementById(canvasId);
+            this.ctx = this.canvas.getContext('2d');
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+
+            this.camera = {
+                position: new Vector.Vec3(0, 0, -75),
+                distance: 50,
+                lookAt: new Vector.Vec3(0, 0, 0),
+                up: new Vector.Vec3(0, 1, 0),
+                fov: 90,
+            };
+
+            this.viewport = {
+                width: this.canvas.width,
+                height: this.canvas.height
+            };
+
+            this.objects = [];
+        }
+
+        addObject(object) {
+            this.objects.push(object);
+        }
+
+        update() {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            for (let object of this.objects) {
+                object.updatePosition();
+                object.draw(this.ctx, this.camera, this.viewport);
+            }
+        }
+
+        animate() {
+            this.update();
+            window.requestAnimationFrame(this.animate.bind(this));
+        }
     }
-}
-const solarSystem = new SolarSystem('solar_system');
 
-const sun = new Sphere(new Vector.Vec3(0, 0, 0), 50, 'yellow');
-const mercury = new Sphere(new Vector.Vec3(100, 0, 0), 10, 'gray');
-const venus = new Sphere(new Vector.Vec3(150, 0, 0), 20, 'orange');
-const earth = new Sphere(new Vector.Vec3(200, 0, 0), 25, 'blue');
-const mars = new Sphere(new Vector.Vec3(250, 0, 0), 15, 'red');
+    const solarSystem = new SolarSystem('solar_system');
 
-solarSystem.addObject(sun);
-solarSystem.addObject(mercury);
-solarSystem.addObject(venus);
-solarSystem.addObject(earth);
-solarSystem.addObject(mars);
+    const sun = new Sphere(new Vector.Vec3(0, 0, 0), 50, 'yellow');
+    const mercury = new Sphere(new Vector.Vec3(100, 0, 0), 10, 'gray', 50, 0.01);
+    const venus = new Sphere(new Vector.Vec3(150, 0, 0), 20, 'orange', 75, 0.008);
+    const earth = new Sphere(new Vector.Vec3(200, 0, 0), 25, 'blue', 100, 0.007);
+    const mars = new Sphere(new Vector.Vec3(250, 0, 0), 15, 'red', 125, 0.006);
 
-function simulate() {
-    solarSystem.animate();
-}
+    solarSystem.addObject(sun);
+    solarSystem.addObject(mercury);
+    solarSystem.addObject(venus);
+    solarSystem.addObject(earth);
+    solarSystem.addObject(mars);
 
-window.addEventListener('resize', () => {
-    solarSystem.canvas.width = window.innerWidth;
-    solarSystem.canvas.height = window.innerHeight;
-    solarSystem.viewport = {
-        width: solarSystem.canvas.width,
-        height: solarSystem.canvas.height
-    };
-});
+    function simulate() {
+        solarSystem.animate();
+    }
 
-window.addEventListener('load', simulate);
+    window.addEventListener('resize', () => {
+        solarSystem.canvas.width = window.innerWidth;
+        solarSystem.canvas.height = window.innerHeight;
+        solarSystem.viewport = {
+            width: solarSystem.canvas.width,
+            height: solarSystem.canvas.height
+        };
+    });
+
+    window.addEventListener('load', simulate);
 
     </script>
 </body>
