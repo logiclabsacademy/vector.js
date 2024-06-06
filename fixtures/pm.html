@@ -123,13 +123,29 @@
         }
 
         update() {
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.drawStars();
-            for (let object of this.objects) {
-                object.update();
-                object.draw(this.ctx, this.camera, this.viewport);
-            }
-        }
+    const now = Date.now();
+    const deltaTime = now - this.lastUpdate;
+    this.lastUpdate = now;
+
+    // Update star brightness to create twinkling effect
+    this.stars.forEach(star => {
+        star.brightness += (Math.random() * 0.02 - 0.01) * (deltaTime / 1000); // Adjust the twinkling speed
+        star.brightness = Math.max(0.1, Math.min(1, star.brightness)); // Clamp brightness between 0.1 and 1
+    });
+
+    // Clear canvas
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Draw stars
+    this.drawStars();
+
+    // Draw celestial bodies
+    for (let object of this.objects) {
+        object.update();
+        object.draw(this.ctx, this.camera, this.viewport);
+    }
+}
+
 
         animate() {
             this.update();
