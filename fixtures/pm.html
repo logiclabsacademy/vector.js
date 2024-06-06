@@ -19,7 +19,9 @@
     </style>
 </head>
 <body>
-    <canvas id="solar_system"></canvas>
+    <canvas id="solar_system">
+        <p>Your browser does not support the HTML5 Canvas</p>
+    </canvas>
     <script type="module">
     
     import '../src/vector.js';
@@ -91,14 +93,14 @@ class SolarSystem {
         this.update();
         requestAnimationFrame(this.animate.bind(this));
     }
-}
+}   
         const solarSystem = new SolarSystem('solar_system');
 
-        const sun = new Sphere(new Vector.Vec3(solarSystem.canvas.width / 2, solarSystem.canvas.height / 2, 0), 50, 'yellow');
-        const mercury = new Sphere(new Vector.Vec3(solarSystem.canvas.width / 2 + 100, solarSystem.canvas.height / 2, 0), 10, 'gray');
-        const venus = new Sphere(new Vector.Vec3(solarSystem.canvas.width / 2 + 200, solarSystem.canvas.height / 2, 0), 20, 'orange');
-        const earth = new Sphere(new Vector.Vec3(solarSystem.canvas.width / 2 + 300, solarSystem.canvas.height / 2, 0), 25, 'blue');
-        const mars = new Sphere(new Vector.Vec3(solarSystem.canvas.width / 2 + 400, solarSystem.canvas.height / 2, 0), 15, 'red');
+        const sun = new Sphere(new Vector.Vec3(solarSystem.canvas.width / 2, solarSystem.canvas.height / 2, 100), 500, 'yellow');
+        const mercury = new Sphere(new Vector.Vec3(solarSystem.canvas.width / 2 + 100, solarSystem.canvas.height / 2, 200), 10, 'gray');
+        const venus = new Sphere(new Vector.Vec3(solarSystem.canvas.width / 2 + 200, solarSystem.canvas.height / 2, 15), 20, 'orange');
+        const earth = new Sphere(new Vector.Vec3(solarSystem.canvas.width / 2 + 300, solarSystem.canvas.height / 2, 10), 25, 'blue');
+        const mars = new Sphere(new Vector.Vec3(solarSystem.canvas.width / 2 + 400, solarSystem.canvas.height / 2, 20), 15, 'red');
 
         solarSystem.addObject(sun);
         solarSystem.addObject(mercury);
@@ -106,14 +108,23 @@ class SolarSystem {
         solarSystem.addObject(earth);
         solarSystem.addObject(mars);
 
+            function simulate() {
+                solarSystem.update();
+                requestAnimationFrame(simulate);
+            }
+
+
         window.addEventListener('resize', () => {
             solarSystem.canvas.width = window.innerWidth;
             solarSystem.canvas.height = window.innerHeight;
         });
 
-        window.addEventListener('load', () => {
-            solarSystem.animate();
+        window.addEventListener('load', () => { 
+            simulate(); 
         });
+
+
+
     </script>
 </body>
 </html>
