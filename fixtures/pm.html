@@ -34,18 +34,19 @@
             this.nSegments = nSegments;
             this.orbitRadius = orbitRadius;
             this.orbitSpeed = orbitSpeed;
-            this.orbitAngle = 0;
+            this.orbitAngle = Math.random() * 2 * Math.PI; // Random initial angle for variation
         }
 
         update() {
             this.orbitAngle += this.orbitSpeed;
-            this.position.rotX(this.orbitAngle);
 
-            if (this.orbitAngle >= 2 * Math.PI) {
-                this.orbitAngle = 0;
-            }
-            
-            return this;
+            // Calculate new position based on orbit parameters
+            const newX = Math.cos(this.orbitAngle) * this.orbitRadius;
+            const newY = Math.sin(this.orbitAngle) * this.orbitRadius;
+
+            // Update position
+            this.position.x = newX;
+            this.position.y = newY;
         }
 
         draw(ctx, camera, viewport = { width: ctx.canvas.width, height: ctx.canvas.height }) {
@@ -65,6 +66,7 @@
                 const p1 = new Vector.Vec3(x1, y1, z1).project(camera.position, viewport);
                 const p2 = new Vector.Vec3(x2, y2, z2).project(camera.position, viewport);
 
+                // Draw line segment
                 ctx.beginPath();
                 ctx.moveTo(p1.x, p1.y);
                 ctx.lineTo(p2.x, p2.y);
@@ -82,8 +84,8 @@
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
             this.stars = [];
-        this.generateStars();
-        this.lastUpdate = Date.now();
+            this.generateStars();
+            this.lastUpdate = Date.now();
 
             this.camera = {
                 position: new Vector.Vec3(0, 0, -75),
@@ -99,15 +101,15 @@
             };
 
             this.objects = [];
-            this.stars = [];
-            this.generateStars();
         }
-drawStars() {
-        this.stars.forEach(star => {
-            this.ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
-            this.ctx.fillRect(star.x, star.y, star.size, star.size);
-        });
-    }
+
+        drawStars() {
+            this.stars.forEach(star => {
+                this.ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
+                this.ctx.fillRect(star.x, star.y, star.size, star.size);
+            });
+        }
+
         generateStars() {
             const numStars = 200;
             for (let i = 0; i < numStars; i++) {
@@ -124,34 +126,22 @@ drawStars() {
             this.objects.push(object);
         }
 
-        
         update() {
-        const now = Date.now();
-        const deltaTime = now - this.lastUpdate;
-        this.lastUpdate = now;
-        this.timeElapsed += deltaTime; // Update total time elapsed
+            const now = Date.now();
+            const deltaTime = now - this.lastUpdate;
+            this.lastUpdate = now;
 
-        // Update star brightness to create twinkling effect
-        this.stars.forEach(star => {
-            star.brightness += (Math.random() * 0.02 - 0.01) * (deltaTime / 1000); // Adjust the twinkling speed
-            star.brightness = Math.max(0.1, Math.min(1, star.brightness)); // Clamp brightness between 0.1 and 1
-        });
+            // Update star brightness to create twinkling effect
+            this.stars.forEach(star => {
+                star.brightness += (Math.random() * 0.02 - 0.01) * (deltaTime / 1000); // Adjust the twinkling speed
+                star.brightness = Math.max(0.1, Math.min(1, star.brightness)); // Clamp brightness between 0.1 and 1
+            });
 
-        // Update positions of celestial bodies
-        this.objects.forEach(object => {
-            object.update(); // Update the orbit angle
-            const orbitRadius = object.orbitRadius;
-            const orbitSpeed = object.orbitSpeed;
-            const angle = object.orbitAngle;
+            // Update positions of celestial bodies
+            this.objects.forEach(object => {
+                object.update(); // Update the orbit angle
+            });
 
-            // Calculate new position based on orbit parameters
-            const newX = Math.cos(angle) * orbitRadius;
-            const newY = Math.sin(angle) * orbitRadius;
-
-            // Update position
-            object.position.x = newX;
-            object.position.y = newY;
-        });
 
         // Clear canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
