@@ -23,47 +23,9 @@
         <p>Your browser does not support the HTML5 Canvas</p>
     </canvas>
     <script type="module">
-    
+
     import '../src/vector.js';
 
-    const canvas = document.getElementById('solar_system');
-        const ctx = canvas.getContext('2d');
-
-        // Set canvas size
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        // Generate random stars
-        const stars = [];
-        const numStars = 200;
-        for (let i = 0; i < numStars; i++) {
-            stars.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                size: Math.random() * 2, // Adjust the size of stars
-                brightness: Math.random() * 0.5 + 0.5 // Initial brightness
-            });
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw stars
-            stars.forEach(star => {
-                ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
-                ctx.fillRect(star.x, star.y, star.size, star.size);
-            });
-        }
-
-        function update() {
-            // Update star brightness to create twinkling effect
-            stars.forEach(star => {
-                star.brightness += Math.random() * 0.02 - 0.01;
-                star.brightness = Math.max(0.1, Math.min(1, star.brightness)); // Clamp brightness between 0.1 and 1
-            });
-        }
-
-    
     class Sphere {
         constructor(position, radius, color, nSegments = 50, orbitRadius = 20, orbitSpeed = 10) {
             this.position = position;
@@ -72,7 +34,8 @@
             this.nSegments = nSegments;
             this.orbitRadius = orbitRadius;
             this.orbitSpeed = orbitSpeed;
-            this.orbitAngle = 0;}
+            this.orbitAngle = 0;
+        }
 
         update() {
             this.orbitAngle += this.orbitSpeed;
@@ -118,8 +81,6 @@
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
 
-
-
             this.camera = {
                 position: new Vector.Vec3(0, 0, -75),
                 distance: 50,
@@ -127,28 +88,47 @@
                 up: new Vector.Vec3(0, 1, 0),
                 fov: 90,
             };
-            
+
             this.viewport = {
                 width: this.canvas.width,
                 height: this.canvas.height
             };
 
             this.objects = [];
+            this.stars = [];
+            this.generateStars();
+        }
+
+        generateStars() {
+            const numStars = 200;
+            for (let i = 0; i < numStars; i++) {
+                this.stars.push({
+                    x: Math.random() * this.canvas.width,
+                    y: Math.random() * this.canvas.height,
+                    size: Math.random() * 2, // Adjust the size of stars
+                    brightness: Math.random() * 0.5 + 0.5 // Initial brightness
+                });
+            }
         }
 
         addObject(object) {
             this.objects.push(object);
         }
 
+        drawStars() {
+            this.stars.forEach(star => {
+                this.ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
+                this.ctx.fillRect(star.x, star.y, star.size, star.size);
+            });
+        }
+
         update() {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.drawStars();
             for (let object of this.objects) {
                 object.update();
                 object.draw(this.ctx, this.camera, this.viewport);
             }
-
-
-
         }
 
         animate() {
@@ -171,10 +151,6 @@
     solarSystem.addObject(earth);
     solarSystem.addObject(mars);
 
-    function simulate() {
-        solarSystem.animate();
-    }
-
     window.addEventListener('resize', () => {
         solarSystem.canvas.width = window.innerWidth;
         solarSystem.canvas.height = window.innerHeight;
@@ -182,20 +158,9 @@
             width: solarSystem.canvas.width,
             height: solarSystem.canvas.height
         };
-
     });
 
-    window.addEventListener('load', function () {
-            update();
-            draw();
-            simulate();
-    });
-
-        // Resize canvas when window size changes
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
+    solarSystem.animate();
     </script>
 </body>
 </html>
