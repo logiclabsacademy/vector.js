@@ -44,6 +44,7 @@
             if (this.orbitAngle >= 2 * Math.PI) {
                 this.orbitAngle = 0;
             }
+            
             return this;
         }
 
@@ -124,16 +125,32 @@ drawStars() {
         }
 
         
-
         update() {
         const now = Date.now();
         const deltaTime = now - this.lastUpdate;
         this.lastUpdate = now;
+        this.timeElapsed += deltaTime; // Update total time elapsed
 
         // Update star brightness to create twinkling effect
         this.stars.forEach(star => {
             star.brightness += (Math.random() * 0.02 - 0.01) * (deltaTime / 1000); // Adjust the twinkling speed
             star.brightness = Math.max(0.1, Math.min(1, star.brightness)); // Clamp brightness between 0.1 and 1
+        });
+
+        // Update positions of celestial bodies
+        this.objects.forEach(object => {
+            object.update(); // Update the orbit angle
+            const orbitRadius = object.orbitRadius;
+            const orbitSpeed = object.orbitSpeed;
+            const angle = object.orbitAngle;
+
+            // Calculate new position based on orbit parameters
+            const newX = Math.cos(angle) * orbitRadius;
+            const newY = Math.sin(angle) * orbitRadius;
+
+            // Update position
+            object.position.x = newX;
+            object.position.y = newY;
         });
 
         // Clear canvas
@@ -144,7 +161,6 @@ drawStars() {
 
         // Draw celestial bodies
         for (let object of this.objects) {
-            object.update();
             object.draw(this.ctx, this.camera, this.viewport);
         }
     }
