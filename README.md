@@ -53,3 +53,10 @@ let v = new Vec3(1, 2, 3);
 3. Tearable Cloth
 
 
+## Python Server
+```bash
+python -m http.server 8000 -b '127.0.0.1'
+```
+
+## License
+MIT License
