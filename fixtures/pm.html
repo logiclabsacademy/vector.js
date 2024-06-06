@@ -99,11 +99,8 @@ class Sphere {
             this.lastUpdate = Date.now();
 
             this.camera = {
-                position: new Vector.Vec3(0, 0, -75),
-                distance: 50,
+                position: new Vector.Vec3(0, 0, -50),
                 lookAt: new Vector.Vec3(0, 0, 0),
-                up: new Vector.Vec3(0, 1, 0),
-                fov: 90,
             };
 
             this.viewport = {
@@ -152,8 +149,6 @@ class Sphere {
             this.objects.forEach(object => {
                 object.update(); // Update the orbit angle
             });
-
-
         // Clear canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -177,23 +172,25 @@ const venus = new Sphere(new Vector.Vec3(0, 0, 0), 10, 'orange', sun);
 const earth = new Sphere(new Vector.Vec3(0, 0, 0), 10, 'blue', sun);
 const earthMoon = new Sphere(new Vector.Vec3(0, 0, 0), 2, 'gray',null);
 const mars = new Sphere(new Vector.Vec3(0, 0, 0), 7, 'red', sun);
-// const jupiter = new Sphere(new Vector.Vec3(0, 0, 0), 20, 'brown', sun);
-// const saturn = new Sphere(new Vector.Vec3(0, 0, 0), 15, 'yellow', sun);
-// const uranus = new Sphere(new Vector.Vec3(0, 0, 0), 12, 'cyan', sun);
-// const neptune = new Sphere(new Vector.Vec3(0, 0, 0), 12, 'blue', sun);
-
+const jupiter = new Sphere(new Vector.Vec3(0, 0, 0), 20, 'brown', sun);
+const saturn = new Sphere(new Vector.Vec3(0, 0, 0), 15, 'yellow', sun);
+const uranus = new Sphere(new Vector.Vec3(0, 0, 0), 12, 'cyan', sun);
+const neptune = new Sphere(new Vector.Vec3(0, 0, 0), 12, 'blue', sun);
 
 // Rotate the sun
 sun.update = function() {
     this.position.rotZ(.45);
 };
+
 earthMoon.update = function() {
     const earthPosition = earth.position;
     this.position.x = earthPosition.x + 20;
     this.position.y = earthPosition.y;
     this.position.rotZ(1);
-    
+
 };
+
+
 // Add celestial bodies to the solar system
 const solarSystem = new SolarSystem('solar_system');
 solarSystem.addObject(sun);
@@ -202,10 +199,10 @@ solarSystem.addObject(venus);
 solarSystem.addObject(earth);
 solarSystem.addObject(mars);
 solarSystem.addObject(earthMoon);
-// solarSystem.addObject(jupiter);
-// solarSystem.addObject(saturn);
-// solarSystem.addObject(uranus);
-// solarSystem.addObject(neptune);
+solarSystem.addObject(jupiter);
+solarSystem.addObject(saturn);
+solarSystem.addObject(uranus);
+solarSystem.addObject(neptune);
 
 
 // Resize canvas when the window is resized
