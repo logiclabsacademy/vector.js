@@ -1,5 +1,5 @@
 {
-  "name": "@logiclabs/vector.js",
+  "name": "@logiclabsacademy/vector.js",
   "version": "1.0.0",
   "description": "2D and 3D vector library for JavaScript",
   "main": "src/vector.js",
