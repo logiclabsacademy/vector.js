@@ -26,55 +26,66 @@
 
     import '../src/vector.js';
 
-    class Sphere {
-        constructor(position, radius, color, nSegments = 50, orbitRadius = 20, orbitSpeed = 10) {
-            this.position = position;
-            this.radius = radius;
-            this.color = color;
-            this.nSegments = nSegments;
-            this.orbitRadius = orbitRadius;
-            this.orbitSpeed = orbitSpeed;
-            this.orbitAngle = Math.random() * 2 * Math.PI; // Random initial angle for variation
-        }
+    
+class Sphere {
+    constructor(position, radius, color, centerObject = null, nSegments = 50) {
+        this.position = position;
+        this.radius = radius;
+        this.color = color;
+        this.centerObject = centerObject;
+        this.nSegments = nSegments;
+        this.orbitRadius = 0;
+        this.orbitSpeed = 0;
+        this.orbitAngle = Math.random() * 2 * Math.PI; // Random initial angle for variation
 
-        update() {
+        if (this.centerObject) {
+            this.orbitRadius = 100 + Math.random() * 50; // Random orbit radius for variation
+            this.orbitSpeed = 0.01 + Math.random() * 0.02; // Random orbit speed for variation
+        }
+    }
+
+    update() {
+        if (this.centerObject) {
             this.orbitAngle += this.orbitSpeed;
 
-            // Calculate new position based on orbit parameters
-            const newX = Math.cos(this.orbitAngle) * this.orbitRadius;
-            const newY = Math.sin(this.orbitAngle) * this.orbitRadius;
+            if (this.orbitAngle >= 2 * Math.PI) {
+                this.orbitAngle = 0;
+            }
+            
+            const sunPosition = this.centerObject.position;
+            const newX = sunPosition.x + Math.cos(this.orbitAngle) * this.orbitRadius;
+            const newY = sunPosition.y + Math.sin(this.orbitAngle) * this.orbitRadius;
 
-            // Update position
             this.position.x = newX;
             this.position.y = newY;
         }
+    }
+    draw(ctx, camera, viewport = { width: ctx.canvas.width, height: ctx.canvas.height }) {
+        for (let i = 0; i < this.nSegments; i++) {
+            const step = Math.sin(i * 2 * Math.PI / this.nSegments);
+            const theta1 = i * 2 * Math.PI / this.nSegments;
+            const theta2 = (i + 1) * 2 * Math.PI / this.nSegments;
 
-        draw(ctx, camera, viewport = { width: ctx.canvas.width, height: ctx.canvas.height }) {
-            for (let i = 0; i < this.nSegments; i++) {
-                const step = Math.sin(i * 2 * Math.PI / this.nSegments);
-                const theta1 = i * 2 * Math.PI / this.nSegments;
-                const theta2 = (i + 1) * 2 * Math.PI / this.nSegments;
+            const x1 = this.position.x + this.radius * Math.cos(theta1);
+            const y1 = this.position.y + this.radius * Math.sin(theta1) * step;
+            const z1 = this.position.z;
 
-                const x1 = this.position.x + this.radius * Math.cos(theta1);
-                const y1 = this.position.y + this.radius * Math.sin(theta1) * step;
-                const z1 = this.position.z;
+            const x2 = this.position.x + this.radius * Math.cos(theta2);
+            const y2 = this.position.y + this.radius * Math.sin(theta2);
+            const z2 = this.position.z;
 
-                const x2 = this.position.x + this.radius * Math.cos(theta2);
-                const y2 = this.position.y + this.radius * Math.sin(theta2);
-                const z2 = this.position.z;
+            const p1 = new Vector.Vec3(x1, y1, z1).project(camera.position, viewport);
+            const p2 = new Vector.Vec3(x2, y2, z2).project(camera.position, viewport);
 
-                const p1 = new Vector.Vec3(x1, y1, z1).project(camera.position, viewport);
-                const p2 = new Vector.Vec3(x2, y2, z2).project(camera.position, viewport);
-
-                // Draw line segment
-                ctx.beginPath();
-                ctx.moveTo(p1.x, p1.y);
-                ctx.lineTo(p2.x, p2.y);
-                ctx.strokeStyle = this.color;
-                ctx.stroke();
-                ctx.closePath();
-            }
+            // Draw line segment
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = this.color;
+            ctx.stroke();
+            ctx.closePath();
         }
+    }
     }
 
     class SolarSystem {
@@ -160,20 +171,21 @@
         }
     }
 
-    const solarSystem = new SolarSystem('solar_system');
-
     const sun = new Sphere(new Vector.Vec3(0, 0, 0), 50, 'yellow');
-    const mercury = new Sphere(new Vector.Vec3(100, 0, 0), 10, 'gray', 50, 0.1);
-    const venus = new Sphere(new Vector.Vec3(150, 0, 0), 20, 'orange', 75, 0.08);
-    const earth = new Sphere(new Vector.Vec3(200, 0, 0), 25, 'blue', 100, 0.07);
-    const mars = new Sphere(new Vector.Vec3(250, 0, 0), 15, 'red', 125, 0.06);
+const mercury = new Sphere(new Vector.Vec3(0, 0, 0), 5, 'gray', sun);
+const venus = new Sphere(new Vector.Vec3(0, 0, 0), 10, 'orange', sun);
+const earth = new Sphere(new Vector.Vec3(0, 0, 0), 10, 'blue', sun);
+const mars = new Sphere(new Vector.Vec3(0, 0, 0), 7, 'red', sun);
 
-    solarSystem.addObject(sun);
-    solarSystem.addObject(mercury);
-    solarSystem.addObject(venus);
-    solarSystem.addObject(earth);
-    solarSystem.addObject(mars);
+// Add celestial bodies to the solar system
+const solarSystem = new SolarSystem('solar_system');
+solarSystem.addObject(sun);
+solarSystem.addObject(mercury);
+solarSystem.addObject(venus);
+solarSystem.addObject(earth);
+solarSystem.addObject(mars);
 
+// Resize canvas when the window is resized
     window.addEventListener('resize', () => {
         solarSystem.canvas.width = window.innerWidth;
         solarSystem.canvas.height = window.innerHeight;
