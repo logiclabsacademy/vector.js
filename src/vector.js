@@ -111,6 +111,10 @@
     return new Vec2(this.x, this.y);
   };
 
+  Vec2.prototype.toString = function () {
+    return `Vec2: { x: ${this.x}, y: ${this.y} }`;
+  }
+
   Vector["Vec2"] = Vec2;
 
   function Vec3(x = 0, y = 0, z = 0) {
@@ -227,6 +231,8 @@
     return this;
   };
 
+ 
+
   Vec3.prototype.rotX =function(theta) {
     const angleInRadian = (Math.PI / 180) * theta;
     const cosTheta = Math.cos(angleInRadian);
@@ -268,7 +274,10 @@
     return new Vec3(this.x, this.y, this.z);
   };
 
-  
+  Vec3.prototype.toString = function () {
+    return `Vec3: { x: ${this.x}, y: ${this.y}, z: ${this.z} }`;
+  };
+
 Vec3.prototype.project = function(cameraPosition, viewport = { height: 100, width: 100 }, scalingFactor = 1) {
   const { height, width } = viewport;
   const cameraToPoint = new Vec3(
@@ -281,6 +290,7 @@ Vec3.prototype.project = function(cameraPosition, viewport = { height: 100, widt
   const projectedY = (cameraToPoint.y / cameraToPoint.z) * scalingFactor + (height / 2);
   return new Vec2(projectedX, projectedY);
  }, 
+
 
   Vector["Vec3"] = Vec3;
   return Vector;
