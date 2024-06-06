@@ -278,18 +278,26 @@
     return `Vec3: { x: ${this.x}, y: ${this.y}, z: ${this.z} }`;
   };
 
-Vec3.prototype.project = function(cameraPosition, viewport = { height: 100, width: 100 }, scalingFactor = 1) {
-  const { height, width } = viewport;
-  const cameraToPoint = new Vec3(
-    this.x - cameraPosition.x,
-    this.y - cameraPosition.y,
-    this.z - cameraPosition.z
-  );
-
-  const projectedX = (cameraToPoint.x / cameraToPoint.z) * scalingFactor + (width / 2);
-  const projectedY = (cameraToPoint.y / cameraToPoint.z) * scalingFactor + (height / 2);
-  return new Vec2(projectedX, projectedY);
- }, 
+ Object.defineProperty(Vec3,'project', {
+  value: function(cameraPosition, viewport = { height: 100, width: 100 }, scalingFactor = 45) {
+    const { height, width } = viewport;
+    const cameraToPoint = new Vec3(
+      this.x - cameraPosition.x,
+      this.y - cameraPosition.y,
+      this.z - cameraPosition.z
+    );
+    // Apply perspective projection
+    // Scaling factor is used to scale the projected point
+    // which is set to 45 by default due to the aspect ratio of the viewport.
+    const projectedX = (cameraToPoint.x / cameraToPoint.z) * scalingFactor + (width / 2);
+    const projectedY = (cameraToPoint.y / cameraToPoint.z) * scalingFactor + (height / 2);
+    return new Vec2(projectedX, projectedY);
+  },
+  writable: false,
+  configurable: false,
+  enumerable: false
+});
+  
 
 
   Vector["Vec3"] = Vec3;
