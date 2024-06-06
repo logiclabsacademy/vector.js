@@ -209,6 +209,12 @@
     this.z /= obj.z;
     return this;
   };
+  Vec3.prototype.mul = function (obj) {
+    this.x *= obj.x;
+    this.y *= obj.y;
+    this.z *= obj.z;
+    return this;
+  };
   
   Vec3.prototype.magnitude = function () {
     return Math.sqrt(
@@ -278,24 +284,33 @@
     return `Vec3: { x: ${this.x}, y: ${this.y}, z: ${this.z} }`;
   };
 
- Object.defineProperty(Vec3,'project', {
-  value: function(cameraPosition, viewport = { height: 100, width: 100 }, scalingFactor = 45) {
-    const { height, width } = viewport;
-    const cameraToPoint = new Vec3(
-      this.x - cameraPosition.x,
-      this.y - cameraPosition.y,
-      this.z - cameraPosition.z
-    );
-    // Apply perspective projection
-    // Scaling factor is used to scale the projected point
-    // which is set to 45 by default due to the aspect ratio of the viewport.
-    const projectedX = (cameraToPoint.x / cameraToPoint.z) * scalingFactor + (width / 2);
-    const projectedY = (cameraToPoint.y / cameraToPoint.z) * scalingFactor + (height / 2);
-    return new Vec2(projectedX, projectedY);
-  },
-  writable: false,
-  configurable: false,
-  enumerable: false
+  
+  Vec3.prototype.reflect = function (v) {
+    var dot = this.dot(v);
+    var len = v.magnitude();
+    return v
+       .clone()
+       .dot(dot / len)
+       .mul(2)
+       .sub(this);
+ };
+  // Project a 3D point to 2D point
+  
+  Object.defineProperty(Vec3.prototype, 'project', {
+    value: function(cameraPosition, viewport = { height: 100, width: 100 }, scalingFactor = 45) {
+        const { height, width } = viewport;
+        const cameraToPoint = new Vec3(
+            this.x - cameraPosition.x,
+            this.y - cameraPosition.y,
+            this.z - cameraPosition.z
+        );
+        const projectedX = (cameraToPoint.x / cameraToPoint.z) * scalingFactor + (width / 2);
+        const projectedY = (cameraToPoint.y / cameraToPoint.z) * scalingFactor + (height / 2);
+        return new Vec2(projectedX, projectedY);
+    },
+    writable: false,
+    configurable: false,
+    enumerable: false
 });
   
 
