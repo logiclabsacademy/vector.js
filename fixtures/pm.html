@@ -80,6 +80,9 @@
             this.ctx = this.canvas.getContext('2d');
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
+            this.stars = [];
+        this.generateStars();
+        this.lastUpdate = Date.now();
 
             this.camera = {
                 position: new Vector.Vec3(0, 0, -75),
@@ -98,7 +101,12 @@
             this.stars = [];
             this.generateStars();
         }
-
+drawStars() {
+        this.stars.forEach(star => {
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
+            this.ctx.fillRect(star.x, star.y, star.size, star.size);
+        });
+    }
         generateStars() {
             const numStars = 200;
             for (let i = 0; i < numStars; i++) {
@@ -115,38 +123,31 @@
             this.objects.push(object);
         }
 
-        drawStars() {
-            this.stars.forEach(star => {
-                this.ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
-                this.ctx.fillRect(star.x, star.y, star.size, star.size);
-            });
-        }
+        
 
         update() {
-    const now = Date.now();
-    const deltaTime = now - this.lastUpdate;
-    this.lastUpdate = now;
+        const now = Date.now();
+        const deltaTime = now - this.lastUpdate;
+        this.lastUpdate = now;
 
-    // Update star brightness to create twinkling effect
-    this.stars.forEach(star => {
-        star.brightness += (Math.random() * 0.02 - 0.01) * (deltaTime / 1000); // Adjust the twinkling speed
-        star.brightness = Math.max(0.1, Math.min(1, star.brightness)); // Clamp brightness between 0.1 and 1
-    });
+        // Update star brightness to create twinkling effect
+        this.stars.forEach(star => {
+            star.brightness += (Math.random() * 0.02 - 0.01) * (deltaTime / 1000); // Adjust the twinkling speed
+            star.brightness = Math.max(0.1, Math.min(1, star.brightness)); // Clamp brightness between 0.1 and 1
+        });
 
-    // Clear canvas
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // Clear canvas
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Draw stars
-    this.drawStars();
+        // Draw stars
+        this.drawStars();
 
-    // Draw celestial bodies
-    for (let object of this.objects) {
-        object.update();
-        object.draw(this.ctx, this.camera, this.viewport);
+        // Draw celestial bodies
+        for (let object of this.objects) {
+            object.update();
+            object.draw(this.ctx, this.camera, this.viewport);
+        }
     }
-}
-
-
         animate() {
             this.update();
             window.requestAnimationFrame(this.animate.bind(this));
