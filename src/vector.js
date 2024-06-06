@@ -239,7 +239,7 @@
 
  
 
-  Vec3.prototype.rotX =function(theta) {
+  Vec3.prototype.rotX = function(theta) {
     const angleInRadian = (Math.PI / 180) * theta;
     const cosTheta = Math.cos(angleInRadian);
     const sinTheta = Math.sin(angleInRadian);
@@ -248,7 +248,8 @@
     this.y = newY;
     this.z = newZ;
     return this;
-  }
+};
+
 
   Vec3.prototype.rotY = function(theta) {
     const angleInRadian = (Math.PI / 180) * theta;
@@ -306,7 +307,7 @@
     );
 
     if(!scalingFactor){
-       scalingFactor =100 ?? cameraPosition.z / (cameraPosition.z - this.z);
+       scalingFactor = 45 ?? cameraPosition.z / (cameraPosition.z - this.z);
     }
         const projectedX = (cameraToPoint.x / cameraToPoint.z) * scalingFactor + (width / 2);
         const projectedY = (cameraToPoint.y / cameraToPoint.z) * scalingFactor + (height / 2);

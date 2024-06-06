@@ -14,7 +14,7 @@
             background-color: #000;
         }
         canvas {
-            background-color: #fff;
+            background-color: #000;
         }
     </style>
 </head>
@@ -25,25 +25,63 @@
     <script type="module">
     
     import '../src/vector.js';
+
+    const canvas = document.getElementById('solar_system');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Generate random stars
+        const stars = [];
+        const numStars = 200;
+        for (let i = 0; i < numStars; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2, // Adjust the size of stars
+                brightness: Math.random() * 0.5 + 0.5 // Initial brightness
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw stars
+            stars.forEach(star => {
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
+                ctx.fillRect(star.x, star.y, star.size, star.size);
+            });
+        }
+
+        function update() {
+            // Update star brightness to create twinkling effect
+            stars.forEach(star => {
+                star.brightness += Math.random() * 0.02 - 0.01;
+                star.brightness = Math.max(0.1, Math.min(1, star.brightness)); // Clamp brightness between 0.1 and 1
+            });
+        }
+
     
     class Sphere {
-        constructor(position, radius, color, nSegments = 50, orbitRadius = 0, orbitSpeed = 0) {
+        constructor(position, radius, color, nSegments = 50, orbitRadius = 20, orbitSpeed = 10) {
             this.position = position;
             this.radius = radius;
             this.color = color;
             this.nSegments = nSegments;
             this.orbitRadius = orbitRadius;
             this.orbitSpeed = orbitSpeed;
-            this.orbitAngle = 0;
-        }
+            this.orbitAngle = 0;}
 
-        updatePosition() {
-            if (this.orbitRadius !== 0) {
-                this.orbitAngle += this.orbitSpeed;
-                this.position.x = this.orbitRadius * Math.cos(this.orbitAngle);
-                this.position.z = this.orbitRadius * Math.sin(this.orbitAngle);
-                console.log(`Position updated: ${this.position.x}, ${this.position.z}`);
+        update() {
+            this.orbitAngle += this.orbitSpeed;
+            this.position.rotX(this.orbitAngle);
+
+            if (this.orbitAngle >= 2 * Math.PI) {
+                this.orbitAngle = 0;
             }
+            return this;
         }
 
         draw(ctx, camera, viewport = { width: ctx.canvas.width, height: ctx.canvas.height }) {
@@ -80,6 +118,8 @@
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
 
+
+
             this.camera = {
                 position: new Vector.Vec3(0, 0, -75),
                 distance: 50,
@@ -87,7 +127,7 @@
                 up: new Vector.Vec3(0, 1, 0),
                 fov: 90,
             };
-
+            
             this.viewport = {
                 width: this.canvas.width,
                 height: this.canvas.height
@@ -103,9 +143,12 @@
         update() {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             for (let object of this.objects) {
-                object.updatePosition();
+                object.update();
                 object.draw(this.ctx, this.camera, this.viewport);
             }
+
+
+
         }
 
         animate() {
@@ -117,10 +160,10 @@
     const solarSystem = new SolarSystem('solar_system');
 
     const sun = new Sphere(new Vector.Vec3(0, 0, 0), 50, 'yellow');
-    const mercury = new Sphere(new Vector.Vec3(100, 0, 0), 10, 'gray', 50, 0.01);
-    const venus = new Sphere(new Vector.Vec3(150, 0, 0), 20, 'orange', 75, 0.008);
-    const earth = new Sphere(new Vector.Vec3(200, 0, 0), 25, 'blue', 100, 0.007);
-    const mars = new Sphere(new Vector.Vec3(250, 0, 0), 15, 'red', 125, 0.006);
+    const mercury = new Sphere(new Vector.Vec3(100, 0, 0), 10, 'gray', 50, 0.1);
+    const venus = new Sphere(new Vector.Vec3(150, 0, 0), 20, 'orange', 75, 0.08);
+    const earth = new Sphere(new Vector.Vec3(200, 0, 0), 25, 'blue', 100, 0.07);
+    const mars = new Sphere(new Vector.Vec3(250, 0, 0), 15, 'red', 125, 0.06);
 
     solarSystem.addObject(sun);
     solarSystem.addObject(mercury);
@@ -139,10 +182,20 @@
             width: solarSystem.canvas.width,
             height: solarSystem.canvas.height
         };
+
     });
 
-    window.addEventListener('load', simulate);
+    window.addEventListener('load', function () {
+            update();
+            draw();
+            simulate();
+    });
 
+        // Resize canvas when window size changes
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
     </script>
 </body>
 </html>
