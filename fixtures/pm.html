@@ -69,7 +69,8 @@
             }
 
             draw(ctx) {
-                const numSegments = 50;
+                const numSegments = 50
+                // Big(O) = n^2;
                 for (let i = 0; i < numSegments; i++) {
                     const theta1 = (i / numSegments) * Math.PI;
                     const theta2 = ((i + 1) / numSegments) * Math.PI;
@@ -124,7 +125,7 @@
         const celestialBodies = [sun, mercury, venus, earth];
 
         // Define camera position
-        const cameraPosition = new Vector.Vec3(canvas.width / 2, canvas.height / 2, 500); // Adjust distance as needed
+        const cameraPosition = new Vector.Vec3(canvas.width / 2, canvas.height / 2, 500);
 
         // Function to draw the celestial bodies
         function drawCelestialBodies() {

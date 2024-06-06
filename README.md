@@ -36,7 +36,20 @@ API Reference
     project(cameraPosition, scalingFactor, viewportWidth, viewportHeight): Projects the 3D vector onto a 2D plane.
 
 ## Usage
+
+### Creating a 2D Vector
+```javascript
+let v = new Vec2(1, 2);
+```
+
+### Creating a 3D Vector
+```javascript
+let v = new Vec3(1, 2, 3);
+```
+
 ### See Examples in `fixtures` directory
 1. Birds Flocking
 2. Planetary Motion
 3. Tearable Cloth
+
+
