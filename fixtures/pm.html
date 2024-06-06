@@ -27,16 +27,16 @@
 
         const canvas = document.getElementById('solar_system');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth - 50;
+        canvas.height = window.innerHeight - 50;
 
-        // Function to calculate squared distance between two vectors
-        function distanceSquared(vector1, vector2) {
-            const dx = vector2.x - vector1.x;
-            const dy = vector2.y - vector1.y;
-            const dz = vector2.z - vector1.z;
-            return dx * dx + dy * dy + dz * dz;
-        }
+        const sunRadius = 50;
+        const sunMass = 1000;
+        const sunColor = [255, 255, 0, 1]; // Yellow
+
+        const planetRadius = 10;
+        const planetMass = 10;
+        const planetColor = [0, 0, 255, 1]; // Blue
         class Sphere {
             constructor(position, mass, velocity, radius, color) {
                 // Validate and set default values for position
@@ -108,47 +108,67 @@
             }
         }
 
-        // Initialize camera position
-        const cameraPosition = new Vector.Vec3(canvas.width / 2, canvas.height / 2, 500); // Adjust distance as needed
+
         // Define celestial bodies with initial positions and velocities
-        const sun = new Sphere(new Vector.Vec3(canvas.width / 2, canvas.height / 2, -250), 1, new Vector.Vec3(0, 0, 0), 50, [255, 255, 0, 1]); // Sun
-        const mercury = new Sphere(new Vector.Vec3(canvas.width / 2 + 100, canvas.height / 2, -250), 0.0553, new Vector.Vec3(0, 0, 0.0001), 5, [192, 192, 192, 1]); // Mercury
-        const venus = new Sphere(new Vector.Vec3(canvas.width / 2 + 150, canvas.height / 2, -250), 0.815, new Vector.Vec3(0, 0, 0.0001), 10, [255, 165, 0, 1]); // Venus
-        const earth = new Sphere(new Vector.Vec3(canvas.width / 2 + 200, canvas.height / 2, -250), 1, new Vector.Vec3(0, 0, 0.0001), 10, [0, 0, 255, 1]); // Earth
+        const sun = new Sphere(new Vector.Vec3(canvas.width / 2, canvas.height / 2, -250), sunMass, new Vector.Vec3(0, 0, 0), sunRadius, sunColor); // Sun
+        const mercury = new Sphere(new Vector.Vec3(canvas.width / 2, canvas.height / 2, -200), planetMass, new Vector.Vec3(0, 0, 0.01), planetRadius, planetColor); // Mercury
+        const venus = new Sphere(new Vector.Vec3(canvas.width / 2 , canvas.height / 2, -150), planetMass, new Vector.Vec3(0, 0, 0.008), planetRadius, planetColor); // Venus
+        const earth = new Sphere(new Vector.Vec3(canvas.width / 2, canvas.height / 2, -100), planetMass, new Vector.Vec3(0, 0, 0.006), planetRadius, planetColor); // Earth
+        
+        console.table(sun);
+        console.table(mercury);
+        console.table(venus);
+        console.table(earth);
+        
+        // Array to hold all celestial bodies
         const celestialBodies = [sun, mercury, venus, earth];
 
-        // Event listeners for panning and zooming
-        window.addEventListener('keydown', event => {
-            switch (event.key) {
-                case 'ArrowUp':
-                    cameraPosition.y -= 10; // Pan up
-                    break;
-                case 'ArrowDown':
-                    cameraPosition.y += 10; // Pan down
-                    break;
-                case 'ArrowLeft':
-                    cameraPosition.x -= 10; // Pan left
-                    break;
-                case 'ArrowRight':
-                    cameraPosition.x += 10; // Pan right
-                    break;
-                case '+':
-                    cameraPosition.z -= 10; // Zoom in
-                    break;
-                case '-':
-                    cameraPosition.z += 10; // Zoom out
-                    break;
-                default:
-                    break;
-            }
+        // Define camera position
+        const cameraPosition = new Vector.Vec3(canvas.width / 2, canvas.height / 2, 500); // Adjust distance as needed
 
-            // Update the view after panning or zooming
+        // Function to draw the celestial bodies
+        function drawCelestialBodies() {
             celestialBodies.forEach(body => {
                 const projectedPosition = body.position.project(cameraPosition, { width: canvas.width, height: canvas.height });
                 body.draw(ctx, projectedPosition);
-
             });
-        });
+        }
+
+        // Update function to simulate planet spinning
+        function update() {
+            // Update positions of celestial bodies
+            celestialBodies.forEach(body => {
+                // Simulate spinning around the sun
+                const distanceToSun = body.position.distanceTo(sun.position);
+                const angularSpeed = 0.001 / distanceToSun; // Adjust the speed based on distance
+                body.position.rotZ(angularSpeed); // Spin around the z-axis (sun)
+            });
+        }
+
+        // Render function to draw the scene
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawCelestialBodies();
+        }
+
+        // Function to handle scroll events for rotating the camera
+        function handleScroll(event) {
+            cameraPosition.rotZ(event.deltaY * 0.01); // Adjust rotation speed as needed
+            render();
+        }
+
+        // Event listener for scroll events
+        window.addEventListener('scroll', handleScroll);
+
+        // Main animation loop
+        function animate() {
+            update();
+            render();
+            requestAnimationFrame(animate);
+        }
+
+        // Start the animation loop
+        animate();
 
     </script>
 </body>
