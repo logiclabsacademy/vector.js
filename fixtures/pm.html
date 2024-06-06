@@ -66,9 +66,9 @@ class Sphere {
             const theta1 = i * 2 * Math.PI / this.nSegments;
             const theta2 = (i + 1) * 2 * Math.PI / this.nSegments;
 
-            const x1 = this.position.x + this.radius * Math.cos(theta1);
+            const x1 = this.position.x + this.radius * Math.cos(theta1) ;
             const y1 = this.position.y + this.radius * Math.sin(theta1) * step;
-            const z1 = this.position.z;
+            const z1 = this.position.z * step ;
 
             const x2 = this.position.x + this.radius * Math.cos(theta2);
             const y2 = this.position.y + this.radius * Math.sin(theta2);
@@ -176,6 +176,11 @@ const mercury = new Sphere(new Vector.Vec3(0, 0, 0), 5, 'gray', sun);
 const venus = new Sphere(new Vector.Vec3(0, 0, 0), 10, 'orange', sun);
 const earth = new Sphere(new Vector.Vec3(0, 0, 0), 10, 'blue', sun);
 const mars = new Sphere(new Vector.Vec3(0, 0, 0), 7, 'red', sun);
+
+// Rotate the sun
+sun.update = function() {
+    this.position.rotZ(.45);
+};
 
 // Add celestial bodies to the solar system
 const solarSystem = new SolarSystem('solar_system');
